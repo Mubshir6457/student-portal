@@ -27,12 +27,11 @@
   <nav>
     <button onclick="showSection('resultSection')">Check Result</button>
     <button id="loginBtn" onclick="showSection('loginSection')">Admin Login</button>
-    <button id="studentBtn" class="hidden" onclick="showSection('studentSection')">Add Student</button>
-    <button id="studentListBtn" class="hidden" onclick="showSection('studentListSection')">Student List</button>
+    <button id="studentBtn" class="hidden" onclick="showSection('studentSection')">Add / Exit Student</button>
+    <button id="allStudentBtn" class="hidden" onclick="showSection('allStudentsSection')">All Students</button>
     <button id="exitListBtn" class="hidden" onclick="showSection('exitListSection')">Exit Student List</button>
     <button id="resultBtn" class="hidden" onclick="showSection('addResultSection')">Add Result</button>
-    <button id="deleteResultBtn" class="hidden" onclick="showSection('deleteResultSection')">Delete Result</button>
-    <button id="allResultBtn" class="hidden" onclick="showSection('allResultsSection')">All Results List</button>
+    <button id="allResultBtn" class="hidden" onclick="showSection('allResultsSection')">All Results</button>
     <button id="changeCodeBtn" class="hidden" onclick="showSection('changeCodeSection')">Change Admin Code</button>
     <button id="logoutBtn" class="hidden" onclick="adminLogout()">Logout</button>
   </nav>
@@ -53,7 +52,7 @@
     <p id="loginMsg"></p>
   </section>
 
-  <!-- 🔹 Add Student -->
+  <!-- 🔹 Add / Exit Student -->
   <section id="studentSection">
     <h2>Add Student</h2>
     <input type="text" id="nameInput" placeholder="Student Name">
@@ -68,6 +67,33 @@
     </select>
     <button class="btn" onclick="addStudent()">Add Student</button>
     <p id="stdMsg"></p>
+    <hr>
+    <h2>Exit Student</h2>
+    <input type="text" id="exitRoll" placeholder="Enter Roll Number">
+    <input type="date" id="exitDate">
+    <input type="text" id="exitReason" placeholder="Reason for Exit">
+    <button class="btn" onclick="exitStudent()">Exit Student</button>
+    <p id="exitMsg"></p>
+  </section>
+
+  <!-- 🔹 All Students -->
+  <section id="allStudentsSection">
+    <h2>All Students</h2>
+    <button class="btn" onclick="loadAllStudents()">Refresh List</button>
+    <table>
+      <thead><tr><th>Roll</th><th>Name</th><th>Class</th><th>Admission</th><th>Action</th></tr></thead>
+      <tbody id="allStudentsTable"></tbody>
+    </table>
+  </section>
+
+  <!-- 🔹 Exit Student List -->
+  <section id="exitListSection">
+    <h2>Exit Student List</h2>
+    <button class="btn" onclick="loadExitList()">Refresh</button>
+    <table>
+      <thead><tr><th>Roll</th><th>Name</th><th>Date</th><th>Reason</th><th>Action</th></tr></thead>
+      <tbody id="exitStudentsTable"></tbody>
+    </table>
   </section>
 
   <!-- 🔹 Add Result -->
@@ -87,20 +113,12 @@
     <p id="resMsg"></p>
   </section>
 
-  <!-- 🔹 NEW: Delete Result -->
-  <section id="deleteResultSection">
-    <h2>Delete Result</h2>
-    <select id="deleteRoll"></select>
-    <button class="btn" onclick="deleteResult()">🗑 Delete Selected Result</button>
-    <p id="deleteMsg"></p>
-  </section>
-
   <!-- 🔹 All Results -->
   <section id="allResultsSection">
-    <h2>All Students Results</h2>
-    <button class="btn" onclick="loadAllResults()">Refresh All Results</button>
+    <h2>All Results</h2>
+    <button class="btn" onclick="loadAllResults()">Refresh</button>
     <table>
-      <thead><tr><th>Roll</th><th>Name</th><th>Month</th><th>Total Marks</th><th>Attendance</th></tr></thead>
+      <thead><tr><th>Roll</th><th>Name</th><th>Month</th><th>Total Marks</th><th>Attendance</th><th>Action</th></tr></thead>
       <tbody id="allResultsTable"></tbody>
     </table>
   </section>
@@ -108,9 +126,9 @@
   <!-- 🔹 Change Admin Code -->
   <section id="changeCodeSection">
     <h2>Change Admin Code</h2>
-    <input type="password" id="oldCode" placeholder="Enter Old Code">
-    <input type="password" id="newCode" placeholder="Enter New Code">
-    <button class="btn" onclick="changeAdminCode()">Change Code</button>
+    <input type="password" id="oldCode" placeholder="Old Code">
+    <input type="password" id="newCode" placeholder="New Code">
+    <button class="btn" onclick="changeAdminCode()">Change</button>
     <p id="codeMsg"></p>
   </section>
 
@@ -138,142 +156,153 @@
 
     if (!localStorage.getItem("adminCode")) localStorage.setItem("adminCode", "6457");
 
-    // --- Login / Logout ---
     window.adminLogin = function() {
-      const inputCode = adminCode.value.trim();
-      const saved = localStorage.getItem("adminCode");
-      if (inputCode === saved) {
-        loginMsg.textContent = "✅ Login Successful!";
-        loginMsg.style.color = "green";
-        ["loginBtn","studentBtn","resultBtn","logoutBtn","allResultBtn","changeCodeBtn","deleteResultBtn"].forEach(id => document.getElementById(id).classList.toggle("hidden"));
+      if (adminCode.value === localStorage.getItem("adminCode")) {
+        ["loginBtn","studentBtn","logoutBtn","resultBtn","allResultBtn","changeCodeBtn","exitListBtn","allStudentBtn"]
+          .forEach(id => document.getElementById(id).classList.toggle("hidden"));
         showSection("studentSection");
         loadRollNumbers();
-        loadDeleteRolls();
-      } else {
-        loginMsg.textContent = "❌ Wrong Code!";
-        loginMsg.style.color = "red";
-      }
+      } else alert("❌ Wrong Admin Code!");
     };
 
     window.adminLogout = function() {
-      ["loginBtn","studentBtn","resultBtn","logoutBtn","allResultBtn","changeCodeBtn","deleteResultBtn"].forEach(id => document.getElementById(id).classList.toggle("hidden"));
+      ["loginBtn","studentBtn","logoutBtn","resultBtn","allResultBtn","changeCodeBtn","exitListBtn","allStudentBtn"]
+        .forEach(id => document.getElementById(id).classList.toggle("hidden"));
       showSection("resultSection");
-      alert("Logged out successfully!");
     };
 
-    // --- Add Student ---
     window.addStudent = function() {
-      const name = nameInput.value.trim();
-      const roll = rollInput.value.trim();
-      const admission = admissionInput.value;
-      const category = categoryInput.value;
-      if (!name || !roll || !category) return stdMsg.textContent = "⚠ Please fill all fields!";
-      set(ref(db, "students/" + roll), { name, roll, admission, category })
-        .then(() => { stdMsg.textContent = "✅ Student Added!"; loadRollNumbers(); })
-        .catch(e => stdMsg.textContent = "❌ Error: " + e.message);
+      if (!nameInput.value || !rollInput.value || !categoryInput.value)
+        return stdMsg.textContent = "⚠ Please fill all fields!";
+      set(ref(db, "students/" + rollInput.value), {
+        name: nameInput.value, roll: rollInput.value, admission: admissionInput.value, category: categoryInput.value
+      }).then(() => { stdMsg.textContent = "✅ Student Added!"; loadRollNumbers(); });
     };
 
-    // --- Load Roll Numbers ---
-    window.loadRollNumbers = function() {
-      const select = rRoll;
-      select.innerHTML = "";
+    window.exitStudent = async function() {
+      const roll = exitRoll.value.trim(), date = exitDate.value, reason = exitReason.value.trim();
+      if (!roll || !date || !reason) return exitMsg.textContent = "⚠ Fill all fields!";
+      const s = await get(child(ref(db), "students/" + roll));
+      if (s.exists()) {
+        const stu = s.val();
+        await set(ref(db, "exited/" + roll), { roll, name: stu.name, date, reason });
+        await remove(ref(db, "students/" + roll));
+        await remove(ref(db, "results/" + roll));
+        exitMsg.textContent = "✅ Student Exited!";
+        loadRollNumbers();
+      } else exitMsg.textContent = "❌ Roll not found!";
+    };
+
+    window.loadAllStudents = function() {
       get(child(ref(db), "students")).then(snap => {
+        allStudentsTable.innerHTML = "";
         if (snap.exists()) {
-          select.innerHTML = "<option value=''>Select Roll</option>";
           snap.forEach(c => {
             const s = c.val();
-            select.innerHTML += `<option value='${s.roll}'>${s.roll} - ${s.name}</option>`;
+            allStudentsTable.innerHTML += `<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.category}</td><td>${s.admission}</td>
+            <td><button onclick="deleteStudent('${s.roll}')">🗑 Delete</button></td></tr>`;
           });
-        }
+        } else allStudentsTable.innerHTML = "<tr><td colspan='5'>No Students Found</td></tr>";
       });
     };
 
-    // --- Add Result ---
+    window.deleteStudent = async function(roll) {
+      if (confirm("Delete this student?")) {
+        await remove(ref(db, "students/" + roll));
+        await remove(ref(db, "results/" + roll));
+        loadAllStudents(); loadRollNumbers();
+      }
+    };
+
+    window.loadExitList = function() {
+      get(child(ref(db), "exited")).then(snap => {
+        exitStudentsTable.innerHTML = "";
+        if (snap.exists()) {
+          snap.forEach(c => {
+            const s = c.val();
+            exitStudentsTable.innerHTML += `<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.date}</td><td>${s.reason}</td>
+            <td><button onclick="deleteExited('${s.roll}')">🗑 Delete</button></td></tr>`;
+          });
+        } else exitStudentsTable.innerHTML = "<tr><td colspan='5'>No Exited Students Found</td></tr>";
+      });
+    };
+
+    window.deleteExited = async function(roll) {
+      if (confirm("Delete this exited student?")) {
+        await remove(ref(db, "exited/" + roll));
+        loadExitList();
+      }
+    };
+
+    window.loadRollNumbers = function() {
+      rRoll.innerHTML = "";
+      get(child(ref(db), "students")).then(snap => {
+        if (snap.exists()) {
+          rRoll.innerHTML = "<option value=''>Select Roll</option>";
+          snap.forEach(c => {
+            const s = c.val();
+            rRoll.innerHTML += `<option value='${s.roll}'>${s.roll} - ${s.name}</option>`;
+          });
+        } else rRoll.innerHTML = "<option>No Students Found</option>";
+      });
+    };
+
     window.addResult = function() {
-      const roll = rRoll.value.trim();
-      const name = rName.value.trim();
-      const month = monthInput.value.trim();
-      if (!roll || !name || !month) return resMsg.textContent = "⚠ Fill all main fields!";
-      set(ref(db, "results/" + roll), {
-        roll, name, month,
+      if (!rRoll.value || !rName.value || !monthInput.value)
+        return resMsg.textContent = "⚠ Fill all fields!";
+      set(ref(db, "results/" + rRoll.value), {
+        roll: rRoll.value, name: rName.value, month: monthInput.value,
         namazObt: namazObt.value, namazTotal: namazTotal.value,
         quranObt: quranObt.value, quranTotal: quranTotal.value,
         kalmaObt: kalmaObt.value, kalmaTotal: kalmaTotal.value,
         attendance: attendance.value
-      }).then(() => { resMsg.textContent = "✅ Result Added!"; loadDeleteRolls(); });
+      }).then(() => resMsg.textContent = "✅ Result Added!");
     };
 
-    // --- Load All Results ---
     window.loadAllResults = function() {
-      const table = allResultsTable;
       get(child(ref(db), "results")).then(snap => {
-        table.innerHTML = "";
+        allResultsTable.innerHTML = "";
         if (snap.exists()) {
           snap.forEach(c => {
             const r = c.val();
-            const totalObt = (+r.namazObt||0)+(+r.quranObt||0)+(+r.kalmaObt||0);
-            const totalMarks = (+r.namazTotal||0)+(+r.quranTotal||0)+(+r.kalmaTotal||0);
-            table.innerHTML += `<tr><td>${r.roll}</td><td>${r.name}</td><td>${r.month}</td><td>${totalObt}/${totalMarks}</td><td>${r.attendance||"-"}%</td></tr>`;
+            const obt = (+r.namazObt||0)+(+r.quranObt||0)+(+r.kalmaObt||0);
+            const total = (+r.namazTotal||0)+(+r.quranTotal||0)+(+r.kalmaTotal||0);
+            allResultsTable.innerHTML += `<tr><td>${r.roll}</td><td>${r.name}</td><td>${r.month}</td><td>${obt}/${total}</td><td>${r.attendance}%</td>
+            <td><button onclick="deleteResult('${r.roll}')">🗑 Delete</button></td></tr>`;
           });
-        } else table.innerHTML = "<tr><td colspan='5'>No Results Found</td></tr>";
+        } else allResultsTable.innerHTML = "<tr><td colspan='6'>No Results Found</td></tr>";
       });
     };
 
-    // --- Delete Result ---
-    window.loadDeleteRolls = function() {
-      const select = deleteRoll;
-      select.innerHTML = "";
-      get(child(ref(db), "results")).then(snap => {
-        if (snap.exists()) {
-          select.innerHTML = "<option value=''>Select Roll to Delete</option>";
-          snap.forEach(c => {
-            const r = c.val();
-            select.innerHTML += `<option value='${r.roll}'>${r.roll} - ${r.name}</option>`;
-          });
-        } else {
-          select.innerHTML = "<option>No Results Found</option>";
-        }
-      });
+    window.deleteResult = async function(roll) {
+      if (confirm("Delete this result?")) {
+        await remove(ref(db, "results/" + roll));
+        loadAllResults();
+      }
     };
 
-    window.deleteResult = async function() {
-      const roll = deleteRoll.value;
-      if (!roll) return deleteMsg.textContent = "⚠ Please select a roll!";
-      if (!confirm("Are you sure you want to delete this result?")) return;
-      await remove(ref(db, "results/" + roll));
-      deleteMsg.textContent = "🗑️ Result deleted successfully!";
-      deleteMsg.style.color = "green";
-      loadDeleteRolls();
-      loadAllResults();
-    };
-
-    // --- Change Admin Code ---
     window.changeAdminCode = function() {
-      const oldC = oldCode.value.trim(), newC = newCode.value.trim();
-      if (oldC === localStorage.getItem("adminCode") && newC) {
-        localStorage.setItem("adminCode", newC);
+      if (oldCode.value === localStorage.getItem("adminCode")) {
+        localStorage.setItem("adminCode", newCode.value);
         codeMsg.textContent = "✅ Code Changed!";
       } else codeMsg.textContent = "❌ Wrong old code!";
     };
 
-    // --- Check Result ---
     window.checkResult = function() {
-      const roll = searchRoll.value.trim();
-      const out = resultOutput;
-      get(child(ref(db), "results/" + roll)).then(snap => {
+      get(child(ref(db), "results/" + searchRoll.value)).then(snap => {
         if (snap.exists()) {
           const d = snap.val();
           const obt = (+d.namazObt||0)+(+d.quranObt||0)+(+d.kalmaObt||0);
           const total = (+d.namazTotal||0)+(+d.quranTotal||0)+(+d.kalmaTotal||0);
-          out.innerHTML = `
-            <h3>${d.name} (Roll: ${d.roll})</h3>
+          resultOutput.innerHTML = `
+            <h3>${d.name} (${d.roll})</h3>
             <p><b>Month:</b> ${d.month}</p>
-            <p>🕌 Namaz: ${d.namazObt}/${d.namazTotal}</p>
-            <p>📖 Quran: ${d.quranObt}/${d.quranTotal}</p>
-            <p>☪ Kalma: ${d.kalmaObt}/${d.kalmaTotal}</p>
-            <p>📅 Attendance: ${d.attendance}%</p>
-            <hr><b>Total Marks:</b> ${obt}/${total}`;
-        } else out.innerHTML = "❌ No record found!";
+            <p>Namaz: ${d.namazObt}/${d.namazTotal}</p>
+            <p>Quran: ${d.quranObt}/${d.quranTotal}</p>
+            <p>Kalma: ${d.kalmaObt}/${d.kalmaTotal}</p>
+            <p>Attendance: ${d.attendance}%</p>
+            <hr><b>Total:</b> ${obt}/${total}`;
+        } else resultOutput.innerHTML = "❌ No record found!";
       });
     };
   </script>
