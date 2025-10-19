@@ -214,33 +214,36 @@ function showSection(id) {
 }
 
 function adminLogin() {
-  const code = document.getElementById("adminCode").value;
+  const code = document.getElementById("adminCode").value.trim();
   const msg = document.getElementById("loginMsg");
+
   if (code === adminCode) {
     adminAccess = true;
-    msg.textContent = "Login Successful!";
+    msg.textContent = "✅ Login Successful!";
+    msg.style.color = "green";
+
     document.getElementById("numbersBtn").classList.remove("hidden");
     document.getElementById("studentsBtn").classList.remove("hidden");
     document.getElementById("listBtn").classList.remove("hidden");
     document.getElementById("settingsBtn").classList.remove("hidden");
     document.getElementById("logoutBtn").classList.remove("hidden");
     document.getElementById("loginBtn").classList.add("hidden");
-    showSection("numbersSection");
+
+    showSection("studentsSection");
     refreshStudentDropdown();
     loadStudentsTable();
   } else {
-    msg.textContent = "Wrong Code!";
+    msg.textContent = "❌ Wrong Code!";
+    msg.style.color = "red";
   }
 }
 
 function adminLogout() {
   adminAccess = false;
   showSection("resultSection");
-  document.getElementById("numbersBtn").classList.add("hidden");
-  document.getElementById("studentsBtn").classList.add("hidden");
-  document.getElementById("listBtn").classList.add("hidden");
-  document.getElementById("settingsBtn").classList.add("hidden");
-  document.getElementById("logoutBtn").classList.add("hidden");
+  ["numbersBtn","studentsBtn","listBtn","settingsBtn","logoutBtn"].forEach(id => {
+    document.getElementById(id).classList.add("hidden");
+  });
   document.getElementById("loginBtn").classList.remove("hidden");
   alert("Logged out successfully!");
 }
@@ -251,11 +254,9 @@ function changeAdminCode() {
   if (oldCode === adminCode && newCode.length >= 3) {
     adminCode = newCode;
     localStorage.setItem("adminCode", newCode);
-    document.getElementById("codeMsg").textContent = "Code changed successfully!";
-    document.getElementById("oldCode").value = "";
-    document.getElementById("newCode").value = "";
+    document.getElementById("codeMsg").textContent = "✅ Code changed successfully!";
   } else {
-    document.getElementById("codeMsg").textContent = "Incorrect old code or invalid new code!";
+    document.getElementById("codeMsg").textContent = "❌ Incorrect old code or invalid new code!";
   }
 }
 
@@ -269,7 +270,7 @@ function addStudent() {
   };
   students.push(student);
   localStorage.setItem("students", JSON.stringify(students));
-  document.getElementById("stdMsg").textContent = "Student Added!";
+  document.getElementById("stdMsg").textContent = "✅ Student Added!";
   ["name","roll","admission"].forEach(id => document.getElementById(id).value = "");
   refreshStudentDropdown();
   loadStudentsTable();
@@ -287,7 +288,7 @@ function exitStudent() {
     return s;
   });
   localStorage.setItem("students", JSON.stringify(students));
-  document.getElementById("stdMsg").textContent = "Student Exited!";
+  document.getElementById("stdMsg").textContent = "✅ Student Exited!";
   ["exitRoll","exitReason","exitDate"].forEach(id => document.getElementById(id).value = "");
   loadStudentsTable();
 }
@@ -334,12 +335,12 @@ function saveNumbers() {
   results = results.filter(r => !(r.roll === roll && r.month === data.month));
   results.push(data);
   localStorage.setItem("results", JSON.stringify(results));
-  document.getElementById("numMsg").textContent = "Numbers Saved!";
+  document.getElementById("numMsg").textContent = "✅ Numbers Saved!";
   ["month","namazTotal","namazObtained","quranTotal","quranObtained","kalmaTotal","kalmaObtained","attendance","grandTotal","grandObtained"].forEach(id => document.getElementById(id).value="");
 }
 
 function checkResult() {
-  const roll = document.getElementById("searchRoll").value;
+  const roll = document.getElementById("searchRoll").value.trim();
   const results = JSON.parse(localStorage.getItem("results")) || [];
   const students = JSON.parse(localStorage.getItem("students")) || [];
   const student = students.find(s => s.roll === roll);
