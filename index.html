@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Faizan-e-Raza Madarsa System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5fff5;
+      color: #222;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: linear-gradient(to right, #228b22, #d4af37);
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      background: #e8f5e9;
+      border-bottom: 2px solid #c5e1a5;
+      flex-wrap: wrap;
+    }
+    nav button {
+      margin: 5px;
+      padding: 10px 18px;
+      border: none;
+      background: #2e7d32;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    nav button:hover {
+      background: #1b5e20;
+    }
+    section {
+      display: none;
+      padding: 20px;
+    }
+    .active { display: block; }
+    .input-group { margin-bottom: 10px; }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th { background: #c8e6c9; }
+    .hidden { display: none; }
+    .btn {
+      background: #388e3c;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .btn:hover { background: #2e7d32; }
+  </style>
+</head>
+<body>
+  <header>🕌 Faizan-e-Raza Madarsa System</header>
+
+  <nav>
+    <button onclick="showSection('resultSection')">Result Checking</button>
+    <button id="loginBtn" onclick="showSection('loginSection')">Admin Login</button>
+    <button id="numbersBtn" class="hidden" onclick="showSection('numbersSection')">Numbers Management</button>
+    <button id="studentsBtn" class="hidden" onclick="showSection('studentsSection')">Student Management</button>
+    <button id="listBtn" class="hidden" onclick="showSection('listSection')">All Students List</button>
+    <button id="settingsBtn" class="hidden" onclick="showSection('settingsSection')">Admin Settings</button>
+    <button id="logoutBtn" class="hidden" onclick="adminLogout()">Logout</button>
+  </nav>
+
+  <!-- Result Checking -->
+  <section id="resultSection" class="active">
+    <h2>Result Checking</h2>
+    <div class="input-group">
+      <label>Enter Roll Number:</label>
+      <input type="text" id="searchRoll" />
+    </div>
+    <button class="btn" onclick="checkResult()">Check Result</button>
+    <div id="resultOutput"></div>
+  </section>
+
+  <!-- Admin Login -->
+  <section id="loginSection">
+    <h2>Admin Login</h2>
+    <div class="input-group">
+      <label>Enter Admin Code:</label>
+      <input type="password" id="adminCode" />
+    </div>
+    <button class="btn" onclick="adminLogin()">Login</button>
+    <p id="loginMsg"></p>
+  </section>
+
+  <!-- Numbers Management -->
+  <section id="numbersSection">
+    <h2>Numbers Management</h2>
+    <div class="input-group">
+      <label>Select Student (Roll No)</label>
+      <select id="studentSelect"></select>
+    </div>
+    <div class="input-group">
+      <label>Month</label>
+      <input type="text" id="month" />
+    </div>
+    <div class="input-group">
+      <label>Namaz Total / Obtained</label>
+      <input type="number" id="namazTotal" placeholder="Total" />
+      <input type="number" id="namazObtained" placeholder="Obtained" oninput="calculateTotals()" />
+    </div>
+    <div class="input-group">
+      <label>Quran Total / Obtained</label>
+      <input type="number" id="quranTotal" placeholder="Total" />
+      <input type="number" id="quranObtained" placeholder="Obtained" oninput="calculateTotals()" />
+    </div>
+    <div class="input-group">
+      <label>Kalma Total / Obtained</label>
+      <input type="number" id="kalmaTotal" placeholder="Total" />
+      <input type="number" id="kalmaObtained" placeholder="Obtained" oninput="calculateTotals()" />
+    </div>
+    <div class="input-group">
+      <label><b>Total Marks (Auto Calculated)</b></label>
+      <input type="text" id="grandTotal" readonly placeholder="Total Marks" />
+      <input type="text" id="grandObtained" readonly placeholder="Obtained Marks" />
+    </div>
+    <div class="input-group">
+      <label>Attendance (%)</label>
+      <input type="number" id="attendance" />
+    </div>
+    <button class="btn" onclick="saveNumbers()">Save Numbers</button>
+    <p id="numMsg"></p>
+  </section>
+
+  <!-- Student Management -->
+  <section id="studentsSection">
+    <h2>Student Management</h2>
+    <div class="input-group">
+      <label>Name</label>
+      <input type="text" id="name" />
+    </div>
+    <div class="input-group">
+      <label>Roll No</label>
+      <input type="text" id="roll" />
+    </div>
+    <div class="input-group">
+      <label>Date of Admission</label>
+      <input type="date" id="admission" />
+    </div>
+    <button class="btn" onclick="addStudent()">Add Student</button>
+    <div class="input-group">
+      <label>Exit Roll No</label>
+      <input type="text" id="exitRoll" />
+    </div>
+    <div class="input-group">
+      <label>Exit Reason</label>
+      <input type="text" id="exitReason" />
+    </div>
+    <div class="input-group">
+      <label>Date of Exit</label>
+      <input type="date" id="exitDate" />
+    </div>
+    <button class="btn" onclick="exitStudent()">Exit Student</button>
+    <p id="stdMsg"></p>
+  </section>
+
+  <!-- All Students -->
+  <section id="listSection">
+    <h2>All Students List</h2>
+    <table id="studentTable">
+      <tr><th>Name</th><th>Roll No</th><th>Admission</th><th>Status</th></tr>
+    </table>
+  </section>
+
+  <!-- Admin Settings -->
+  <section id="settingsSection">
+    <h2>Admin Settings</h2>
+    <div class="input-group">
+      <label>Current Admin Code:</label>
+      <input type="password" id="oldCode" />
+    </div>
+    <div class="input-group">
+      <label>New Admin Code:</label>
+      <input type="password" id="newCode" />
+    </div>
+    <button class="btn" onclick="changeAdminCode()">Change Code</button>
+    <p id="codeMsg"></p>
+  </section>
+
+<script>
+let adminAccess = false;
+let adminCode = localStorage.getItem("adminCode") || "6457";
+
+function showSection(id) {
+  document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function adminLogin() {
+  const code = document.getElementById("adminCode").value;
+  const msg = document.getElementById("loginMsg");
+  if (code === adminCode) {
+    adminAccess = true;
+    msg.textContent = "Login Successful!";
+    document.getElementById("numbersBtn").classList.remove("hidden");
+    document.getElementById("studentsBtn").classList.remove("hidden");
+    document.getElementById("listBtn").classList.remove("hidden");
+    document.getElementById("settingsBtn").classList.remove("hidden");
+    document.getElementById("logoutBtn").classList.remove("hidden");
+    document.getElementById("loginBtn").classList.add("hidden");
+    showSection("numbersSection");
+    refreshStudentDropdown();
+    loadStudentsTable();
+  } else {
+    msg.textContent = "Wrong Code!";
+  }
+}
+
+function adminLogout() {
+  adminAccess = false;
+  showSection("resultSection");
+  document.getElementById("numbersBtn").classList.add("hidden");
+  document.getElementById("studentsBtn").classList.add("hidden");
+  document.getElementById("listBtn").classList.add("hidden");
+  document.getElementById("settingsBtn").classList.add("hidden");
+  document.getElementById("logoutBtn").classList.add("hidden");
+  document.getElementById("loginBtn").classList.remove("hidden");
+  alert("Logged out successfully!");
+}
+
+function changeAdminCode() {
+  const oldCode = document.getElementById("oldCode").value;
+  const newCode = document.getElementById("newCode").value;
+  if (oldCode === adminCode && newCode.length >= 3) {
+    adminCode = newCode;
+    localStorage.setItem("adminCode", newCode);
+    document.getElementById("codeMsg").textContent = "Code changed successfully!";
+    document.getElementById("oldCode").value = "";
+    document.getElementById("newCode").value = "";
+  } else {
+    document.getElementById("codeMsg").textContent = "Incorrect old code or invalid new code!";
+  }
+}
+
+function addStudent() {
+  let students = JSON.parse(localStorage.getItem("students")) || [];
+  const student = {
+    name: document.getElementById("name").value,
+    roll: document.getElementById("roll").value,
+    admission: document.getElementById("admission").value,
+    status: "Active"
+  };
+  students.push(student);
+  localStorage.setItem("students", JSON.stringify(students));
+  document.getElementById("stdMsg").textContent = "Student Added!";
+  ["name","roll","admission"].forEach(id => document.getElementById(id).value = "");
+  refreshStudentDropdown();
+  loadStudentsTable();
+}
+
+function exitStudent() {
+  const roll = document.getElementById("exitRoll").value;
+  let students = JSON.parse(localStorage.getItem("students")) || [];
+  students = students.map(s => {
+    if (s.roll === roll) {
+      s.status = "Exited";
+      s.exitDate = document.getElementById("exitDate").value;
+      s.reason = document.getElementById("exitReason").value;
+    }
+    return s;
+  });
+  localStorage.setItem("students", JSON.stringify(students));
+  document.getElementById("stdMsg").textContent = "Student Exited!";
+  ["exitRoll","exitReason","exitDate"].forEach(id => document.getElementById(id).value = "");
+  loadStudentsTable();
+}
+
+function refreshStudentDropdown() {
+  const dropdown = document.getElementById("studentSelect");
+  dropdown.innerHTML = "";
+  const students = JSON.parse(localStorage.getItem("students")) || [];
+  students.filter(s => s.status === "Active").forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s.roll;
+    opt.textContent = `${s.roll} - ${s.name}`;
+    dropdown.appendChild(opt);
+  });
+}
+
+function calculateTotals() {
+  const nt = +document.getElementById("namazTotal").value || 0;
+  const no = +document.getElementById("namazObtained").value || 0;
+  const qt = +document.getElementById("quranTotal").value || 0;
+  const qo = +document.getElementById("quranObtained").value || 0;
+  const kt = +document.getElementById("kalmaTotal").value || 0;
+  const ko = +document.getElementById("kalmaObtained").value || 0;
+  document.getElementById("grandTotal").value = nt + qt + kt;
+  document.getElementById("grandObtained").value = no + qo + ko;
+}
+
+function saveNumbers() {
+  const roll = document.getElementById("studentSelect").value;
+  let results = JSON.parse(localStorage.getItem("results")) || [];
+  const data = {
+    roll,
+    month: document.getElementById("month").value,
+    namazTotal: document.getElementById("namazTotal").value,
+    namazObt: document.getElementById("namazObtained").value,
+    quranTotal: document.getElementById("quranTotal").value,
+    quranObt: document.getElementById("quranObtained").value,
+    kalmaTotal: document.getElementById("kalmaTotal").value,
+    kalmaObt: document.getElementById("kalmaObtained").value,
+    attendance: document.getElementById("attendance").value,
+    grandTotal: document.getElementById("grandTotal").value,
+    grandObt: document.getElementById("grandObtained").value
+  };
+  results = results.filter(r => !(r.roll === roll && r.month === data.month));
+  results.push(data);
+  localStorage.setItem("results", JSON.stringify(results));
+  document.getElementById("numMsg").textContent = "Numbers Saved!";
+  ["month","namazTotal","namazObtained","quranTotal","quranObtained","kalmaTotal","kalmaObtained","attendance","grandTotal","grandObtained"].forEach(id => document.getElementById(id).value="");
+}
+
+function checkResult() {
+  const roll = document.getElementById("searchRoll").value;
+  const results = JSON.parse(localStorage.getItem("results")) || [];
+  const students = JSON.parse(localStorage.getItem("students")) || [];
+  const student = students.find(s => s.roll === roll);
+  const res = results.filter(r => r.roll === roll);
+  let output = "";
+  if (student) {
+    output += `<h3>${student.name} (Roll ${student.roll})</h3>`;
+    if (res.length > 0) {
+      res.forEach(r => {
+        output += `<p><b>Month:</b> ${r.month}<br>
+        Namaz: ${r.namazObt}/${r.namazTotal}<br>
+        Quran: ${r.quranObt}/${r.quranTotal}<br>
+        Kalma: ${r.kalmaObt}/${r.kalmaTotal}<br>
+        <b>Total:</b> ${r.grandObt}/${r.grandTotal}<br>
+        Attendance: ${r.attendance}%</p><hr>`;
+      });
+    } else output += "<p>No results found.</p>";
+  } else output = "<p>Student not found.</p>";
+  document.getElementById("resultOutput").innerHTML = output;
+}
+
+function loadStudentsTable() {
+  const table = document.getElementById("studentTable");
+  const students = JSON.parse(localStorage.getItem("students")) || [];
+  table.innerHTML = "<tr><th>Name</th><th>Roll No</th><th>Admission</th><th>Status</th></tr>";
+  students.forEach(s => {
+    table.innerHTML += `<tr><td>${s.name}</td><td>${s.roll}</td><td>${s.admission}</td><td>${s.status}</td></tr>`;
+  });
+}
+</script>
+</body>
+</html>

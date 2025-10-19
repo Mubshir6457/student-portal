@@ -1,0 +1,36 @@
+<script src="https://cdn.tailwindcss.com"></script>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Attendance Check</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-lg bg-white rounded-xl shadow-md p-6">
+    <h1 class="text-2xl font-semibold mb-4">Attendance Check</h1>
+
+    <div class="mb-4">
+      <label class="block mb-2">Enter Roll Number:</label>
+      <input id="attRoll" class="w-full border rounded p-2" type="text" placeholder="e.g. 101">
+    </div>
+
+    <div class="flex gap-2 mb-4">
+      <button id="checkAttBtn" class="px-4 py-2 bg-green-600 text-white rounded">Check Attendance</button>
+      <a href="index.html" class="px-4 py-2 bg-gray-200 rounded">Result Page</a>
+      <a href="admin.html" class="px-4 py-2 bg-gray-200 rounded">Admin</a>
+    </div>
+
+    <div id="attBox" class="mt-4 hidden border p-4 rounded bg-gray-50">
+      <!-- Attendance will appear here -->
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    window.appPage = 'attendance';
+  </script>
+</body>
+</html>
+<script src="script.js"></script>
