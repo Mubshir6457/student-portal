@@ -1,310 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Faizan-e-Raza Madarsa Result Portal</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f5fff5; margin: 0; padding: 0; }
-    header { background: linear-gradient(to right, #228b22, #d4af37); color: white; text-align: center; padding: 1rem; font-size: 1.4rem; font-weight: bold; }
-    nav { display: flex; justify-content: center; background: #e8f5e9; border-bottom: 2px solid #c5e1a5; flex-wrap: wrap; }
-    nav button { margin: 5px; padding: 10px 18px; border: none; background: #2e7d32; color: white; border-radius: 5px; cursor: pointer; }
-    nav button:hover { background: #1b5e20; }
-    section { display: none; padding: 20px; }
-    .active { display: block; }
-    .hidden { display: none; }
-    input, select { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; }
-    .btn { background: #388e3c; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; margin-top: 5px; }
-    .btn:hover { background: #2e7d32; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background: #c8e6c9; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faizan-e-Raza Madarsa Result Portal</title>
+<style>
+body { font-family: Arial, sans-serif; background:#f5fff5; margin:0; padding:0; }
+header { background:linear-gradient(to right,#228b22,#d4af37); color:white; text-align:center; padding:1rem; font-size:1.4rem; font-weight:bold; }
+nav { display:flex; justify-content:center; flex-wrap:wrap; background:#e8f5e9; border-bottom:2px solid #c5e1a5; }
+nav button { margin:5px; padding:10px 18px; border:none; background:#2e7d32; color:white; border-radius:5px; cursor:pointer; }
+nav button:hover { background:#1b5e20; }
+section { display:none; padding:20px; }
+.active { display:block; }
+.hidden { display:none; }
+input, select { width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:5px; }
+.btn { background:#388e3c; color:white; border:none; padding:8px 14px; border-radius:5px; cursor:pointer; margin-top:5px; }
+.btn:hover { background:#2e7d32; }
+table { width:100%; border-collapse:collapse; margin-top:10px; }
+th,td { border:1px solid #ccc; padding:8px; text-align:center; }
+th { background:#c8e6c9; }
+</style>
 </head>
 <body>
-  <header>🕌 Faizan-e-Raza Madarsa Result Portal</header>
 
-  <nav>
-    <button onclick="showSection('resultSection')">Check Result</button>
-    <button id="loginBtn" onclick="showSection('loginSection')">Admin Login</button>
-    <button id="studentBtn" class="hidden" onclick="showSection('studentSection')">Add / Exit Student</button>
-    <button id="allStudentBtn" class="hidden" onclick="showSection('allStudentsSection')">All Students</button>
-    <button id="exitListBtn" class="hidden" onclick="showSection('exitListSection')">Exit Student List</button>
-    <button id="resultBtn" class="hidden" onclick="showSection('addResultSection')">Add Result</button>
-    <button id="allResultBtn" class="hidden" onclick="showSection('allResultsSection')">All Results</button>
-    <button id="changeCodeBtn" class="hidden" onclick="showSection('changeCodeSection')">Change Admin Code</button>
-    <button id="logoutBtn" class="hidden" onclick="adminLogout()">Logout</button>
-  </nav>
+<header>🕌 Faizan-e-Raza Madarsa Result Portal</header>
 
-  <!-- 🔹 Check Result -->
-  <section id="resultSection" class="active">
-    <h2>Check Student Result</h2>
-    <input type="text" id="searchRoll" placeholder="Enter Roll Number">
-    <button class="btn" onclick="checkResult()">Check</button>
-    <div id="resultOutput"></div>
-  </section>
+<nav>
+  <button onclick="showSection('resultSection')">Check Result</button>
+  <button id="loginBtn" onclick="showSection('loginSection')">Admin Login</button>
+  <button id="studentBtn" class="hidden" onclick="showSection('studentSection')">Add / Exit Student</button>
+  <button id="allStudentBtn" class="hidden" onclick="showSection('allStudentsSection')">All Students</button>
+  <button id="exitListBtn" class="hidden" onclick="showSection('exitListSection')">Exit Student List</button>
+  <button id="resultBtn" class="hidden" onclick="showSection('addResultSection')">Add Results</button>
+  <button id="allResultBtn" class="hidden" onclick="showSection('allResultsSection')">All Results</button>
+  <button id="changeCodeBtn" class="hidden" onclick="showSection('changeCodeSection')">Change Admin Code</button>
+  <button id="logoutBtn" class="hidden" onclick="adminLogout()">Logout</button>
+</nav>
 
-  <!-- 🔹 Admin Login -->
-  <section id="loginSection">
-    <h2>Admin Login</h2>
-    <input type="password" id="adminCode" placeholder="Enter Admin Code">
-    <button class="btn" onclick="adminLogin()">Login</button>
-    <p id="loginMsg"></p>
-  </section>
+<!-- 🟢 PUBLIC RESULT CHECK -->
+<section id="resultSection" class="active">
+  <h2>Check Student Result</h2>
+  <input type="text" id="searchRoll" placeholder="Enter Roll Number">
+  <button class="btn" onclick="checkResult()">Check</button>
+  <div id="resultOutput"></div>
+</section>
 
-  <!-- 🔹 Add / Exit Student -->
-  <section id="studentSection">
-    <h2>Add Student</h2>
-    <input type="text" id="nameInput" placeholder="Student Name">
-    <input type="text" id="rollInput" placeholder="Roll Number">
-    <input type="date" id="admissionInput">
-    <select id="categoryInput">
-      <option value="">Select Class/Category</option>
-      <option value="Noorani Qaida">Noorani Qaida</option>
-      <option value="Separa">Separa</option>
-      <option value="Nazra">Nazra</option>
-      <option value="Hifz">Hifz</option>
-    </select>
-    <button class="btn" onclick="addStudent()">Add Student</button>
-    <p id="stdMsg"></p>
-    <hr>
-    <h2>Exit Student</h2>
-    <input type="text" id="exitRoll" placeholder="Enter Roll Number">
-    <input type="date" id="exitDate">
-    <input type="text" id="exitReason" placeholder="Reason for Exit">
-    <button class="btn" onclick="exitStudent()">Exit Student</button>
-    <p id="exitMsg"></p>
-  </section>
+<!-- 🔐 ADMIN LOGIN -->
+<section id="loginSection">
+  <h2>Admin Login</h2>
+  <input type="password" id="adminCode" placeholder="Enter Admin Code">
+  <button class="btn" onclick="adminLogin()">Login</button>
+  <p id="loginMsg"></p>
+</section>
 
-  <!-- 🔹 All Students -->
-  <section id="allStudentsSection">
-    <h2>All Students</h2>
-    <button class="btn" onclick="loadAllStudents()">Refresh List</button>
-    <table>
-      <thead><tr><th>Roll</th><th>Name</th><th>Class</th><th>Admission</th><th>Action</th></tr></thead>
-      <tbody id="allStudentsTable"></tbody>
-    </table>
-  </section>
+<!-- 🧑‍🎓 ADD / EXIT STUDENT -->
+<section id="studentSection">
+  <h2>Add Student</h2>
+  <input type="text" id="nameInput" placeholder="Student Name">
+  <input type="text" id="fatherInput" placeholder="Father Name">
+  <input type="text" id="phoneInput" placeholder="Phone Number">
+  <input type="text" id="rollInput" placeholder="Roll Number">
+  <input type="date" id="admissionInput">
+  <select id="categoryInput">
+    <option value="">Select Class</option>
+    <option>Noorani Qaida</option>
+    <option>Separa</option>
+    <option>Nazra</option>
+    <option>Hifz</option>
+  </select>
+  <button class="btn" onclick="addStudent()">Add Student</button>
+  <p id="stdMsg"></p>
+  <hr>
+  <h2>Exit Student</h2>
+  <input type="text" id="exitRoll" placeholder="Enter Roll Number">
+  <input type="date" id="exitDate">
+  <input type="text" id="exitReason" placeholder="Reason for Exit">
+  <button class="btn" onclick="exitStudent()">Exit Student</button>
+  <p id="exitMsg"></p>
+</section>
 
-  <!-- 🔹 Exit Student List -->
-  <section id="exitListSection">
-    <h2>Exit Student List</h2>
-    <button class="btn" onclick="loadExitList()">Refresh</button>
-    <table>
-      <thead><tr><th>Roll</th><th>Name</th><th>Date</th><th>Reason</th><th>Action</th></tr></thead>
-      <tbody id="exitStudentsTable"></tbody>
-    </table>
-  </section>
+<!-- 📋 ALL STUDENTS -->
+<section id="allStudentsSection">
+  <h2>All Students</h2>
+  <button class="btn" onclick="loadAllStudents()">Refresh</button>
+  <table>
+    <thead><tr><th>Roll</th><th>Name</th><th>Father</th><th>Phone</th><th>Class</th><th>Admission</th><th>Action</th></tr></thead>
+    <tbody id="allStudentsTable"></tbody>
+  </table>
+</section>
 
-  <!-- 🔹 Add Result -->
-  <section id="addResultSection">
-    <h2>Add Result</h2>
-    <select id="rRoll"></select>
-    <input type="text" id="rName" placeholder="Name">
-    <input type="text" id="monthInput" placeholder="Month (e.g. October)">
-    <input type="number" id="namazObt" placeholder="Namaz Obtained">
-    <input type="number" id="namazTotal" placeholder="Namaz Total">
-    <input type="number" id="quranObt" placeholder="Quran Obtained">
-    <input type="number" id="quranTotal" placeholder="Quran Total">
-    <input type="number" id="kalmaObt" placeholder="Kalma Obtained">
-    <input type="number" id="kalmaTotal" placeholder="Kalma Total">
-    <input type="number" id="attendance" placeholder="Attendance (%)">
-    <button class="btn" onclick="addResult()">Add Result</button>
-    <p id="resMsg"></p>
-  </section>
+<!-- 🧾 EXIT LIST -->
+<section id="exitListSection">
+  <h2>Exit Student List</h2>
+  <button class="btn" onclick="loadExitList()">Refresh</button>
+  <table>
+    <thead><tr><th>Roll</th><th>Name</th><th>Date</th><th>Reason</th><th>Action</th></tr></thead>
+    <tbody id="exitStudentsTable"></tbody>
+  </table>
+</section>
 
-  <!-- 🔹 All Results -->
-  <section id="allResultsSection">
-    <h2>All Results</h2>
-    <button class="btn" onclick="loadAllResults()">Refresh</button>
-    <table>
-      <thead><tr><th>Roll</th><th>Name</th><th>Month</th><th>Total Marks</th><th>Attendance</th><th>Action</th></tr></thead>
-      <tbody id="allResultsTable"></tbody>
-    </table>
-  </section>
+<!-- 🧮 ADD RESULTS -->
+<section id="addResultSection">
+  <h2>Add Monthly Results</h2>
+  <input type="text" id="monthInput" placeholder="Month (e.g. October)">
+  <h3>Set Total Marks</h3>
+  <input type="number" id="namazTotal" placeholder="Namaz Total">
+  <input type="number" id="kalmaTotal" placeholder="Kalma Total">
+  <input type="number" id="quranTotal" placeholder="Nazra Total">
+  <button class="btn" onclick="loadStudentsForResults()">Load Students</button>
+  <div id="resultTableContainer"></div>
+  <button class="btn" onclick="saveAllResults()">💾 Save All Results</button>
+  <p id="resMsg"></p>
+</section>
 
-  <!-- 🔹 Change Admin Code -->
-  <section id="changeCodeSection">
-    <h2>Change Admin Code</h2>
-    <input type="password" id="oldCode" placeholder="Old Code">
-    <input type="password" id="newCode" placeholder="New Code">
-    <button class="btn" onclick="changeAdminCode()">Change</button>
-    <p id="codeMsg"></p>
-  </section>
+<!-- 📊 ALL RESULTS -->
+<section id="allResultsSection">
+  <h2>All Results</h2>
+  <button class="btn" onclick="loadAllResults()">Refresh</button>
+  <table>
+    <thead><tr><th>Roll</th><th>Name</th><th>Father</th><th>Month</th><th>Total</th><th>Attendance</th><th>Action</th></tr></thead>
+    <tbody id="allResultsTable"></tbody>
+  </table>
+</section>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getDatabase, ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+<!-- 🔑 CHANGE ADMIN CODE -->
+<section id="changeCodeSection">
+  <h2>Change Admin Code</h2>
+  <input type="password" id="oldCode" placeholder="Old Code">
+  <input type="password" id="newCode" placeholder="New Code">
+  <button class="btn" onclick="changeAdminCode()">Change</button>
+  <p id="codeMsg"></p>
+</section>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyB_zOJiXH5ZSHs4miirkF4p7Fc6NUDuNiY",
-      authDomain: "faizan-e-raza-madarsa-8c743.firebaseapp.com",
-      databaseURL: "https://faizan-e-raza-madarsa-8c743-default-rtdb.firebaseio.com",
-      projectId: "faizan-e-raza-madarsa-8c743",
-      storageBucket: "faizan-e-raza-madarsa-8c743.firebasestorage.app",
-      messagingSenderId: "659467130617",
-      appId: "1:659467130617:web:9ed42e7bb8e3eea5917428"
-    };
+<!-- 🔥 SCRIPT -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getDatabase, ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+const firebaseConfig = {
+  apiKey: "AIzaSyB_zOJiXH5ZSHs4miirkF4p7Fc6NUDuNiY",
+  authDomain: "faizan-e-raza-madarsa-8c743.firebaseapp.com",
+  databaseURL: "https://faizan-e-raza-madarsa-8c743-default-rtdb.firebaseio.com",
+  projectId: "faizan-e-raza-madarsa-8c743",
+  storageBucket: "faizan-e-raza-madarsa-8c743.firebasestorage.app",
+  messagingSenderId: "659467130617",
+  appId: "1:659467130617:web:9ed42e7bb8e3eea5917428"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+window.db=db;window.ref=ref;window.remove=remove;window.child=child;window.get=get;window.set=set;
 
-    window.showSection = id => {
-      document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
-    };
+// Navigation
+window.showSection=id=>{document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");};
 
-    if (!localStorage.getItem("adminCode")) localStorage.setItem("adminCode", "6457");
+// Admin Code
+if(!localStorage.getItem("adminCode"))localStorage.setItem("adminCode","6457");
 
-    window.adminLogin = function() {
-      if (adminCode.value === localStorage.getItem("adminCode")) {
-        ["loginBtn","studentBtn","logoutBtn","resultBtn","allResultBtn","changeCodeBtn","exitListBtn","allStudentBtn"]
-          .forEach(id => document.getElementById(id).classList.toggle("hidden"));
-        showSection("studentSection");
-        loadRollNumbers();
-      } else alert("❌ Wrong Admin Code!");
-    };
+// Admin Login
+window.adminLogin=()=>{if(adminCode.value===localStorage.getItem("adminCode")){document.querySelectorAll("#studentBtn,#logoutBtn,#resultBtn,#allResultBtn,#changeCodeBtn,#exitListBtn,#allStudentBtn").forEach(b=>b.classList.remove("hidden"));document.getElementById("loginBtn").classList.add("hidden");loginMsg.textContent="✅ Login Successful!";showSection("studentSection");}else loginMsg.textContent="❌ Wrong Admin Code!";};
+window.adminLogout=()=>{document.querySelectorAll("#studentBtn,#logoutBtn,#resultBtn,#allResultBtn,#changeCodeBtn,#exitListBtn,#allStudentBtn").forEach(b=>b.classList.add("hidden"));document.getElementById("loginBtn").classList.remove("hidden");showSection("resultSection");};
 
-    window.adminLogout = function() {
-      ["loginBtn","studentBtn","logoutBtn","resultBtn","allResultBtn","changeCodeBtn","exitListBtn","allStudentBtn"]
-        .forEach(id => document.getElementById(id).classList.toggle("hidden"));
-      showSection("resultSection");
-    };
+// Add Student
+window.addStudent=async()=>{if(!nameInput.value||!fatherInput.value||!rollInput.value||!categoryInput.value)return stdMsg.textContent="⚠ Fill all fields!";await set(ref(db,"students/"+rollInput.value),{name:nameInput.value,father:fatherInput.value,phone:phoneInput.value,roll:rollInput.value,admission:admissionInput.value,category:categoryInput.value});stdMsg.textContent="✅ Student Added!";nameInput.value=fatherInput.value=phoneInput.value=rollInput.value="";};
 
-    window.addStudent = function() {
-      if (!nameInput.value || !rollInput.value || !categoryInput.value)
-        return stdMsg.textContent = "⚠ Please fill all fields!";
-      set(ref(db, "students/" + rollInput.value), {
-        name: nameInput.value, roll: rollInput.value, admission: admissionInput.value, category: categoryInput.value
-      }).then(() => { stdMsg.textContent = "✅ Student Added!"; loadRollNumbers(); });
-    };
+// Exit Student
+window.exitStudent=async()=>{const roll=exitRoll.value.trim();if(!roll||!exitDate.value||!exitReason.value)return exitMsg.textContent="⚠ Fill all fields!";const s=await get(child(ref(db),"students/"+roll));if(s.exists()){const st=s.val();await set(ref(db,"exited/"+roll),{roll,name:st.name,date:exitDate.value,reason:exitReason.value});await remove(ref(db,"students/"+roll));exitMsg.textContent="✅ Student Exited!";}else exitMsg.textContent="❌ Roll Not Found!";};
 
-    window.exitStudent = async function() {
-      const roll = exitRoll.value.trim(), date = exitDate.value, reason = exitReason.value.trim();
-      if (!roll || !date || !reason) return exitMsg.textContent = "⚠ Fill all fields!";
-      const s = await get(child(ref(db), "students/" + roll));
-      if (s.exists()) {
-        const stu = s.val();
-        await set(ref(db, "exited/" + roll), { roll, name: stu.name, date, reason });
-        await remove(ref(db, "students/" + roll));
-        await remove(ref(db, "results/" + roll));
-        exitMsg.textContent = "✅ Student Exited!";
-        loadRollNumbers();
-      } else exitMsg.textContent = "❌ Roll not found!";
-    };
+// Load Exit List
+window.loadExitList=()=>{get(child(ref(db),"exited")).then(snap=>{exitStudentsTable.innerHTML="";if(snap.exists()){snap.forEach(c=>{const s=c.val();exitStudentsTable.innerHTML+=`<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.date}</td><td>${s.reason}</td><td><button onclick="deleteExitStudent('${s.roll}')">🗑</button></td></tr>`;});}else exitStudentsTable.innerHTML="<tr><td colspan='5'>No Exited Students</td></tr>";});};
+window.deleteExitStudent=async(roll)=>{await remove(ref(db,"exited/"+roll));loadExitList();};
 
-    window.loadAllStudents = function() {
-      get(child(ref(db), "students")).then(snap => {
-        allStudentsTable.innerHTML = "";
-        if (snap.exists()) {
-          snap.forEach(c => {
-            const s = c.val();
-            allStudentsTable.innerHTML += `<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.category}</td><td>${s.admission}</td>
-            <td><button onclick="deleteStudent('${s.roll}')">🗑 Delete</button></td></tr>`;
-          });
-        } else allStudentsTable.innerHTML = "<tr><td colspan='5'>No Students Found</td></tr>";
-      });
-    };
+// Load All Students
+window.loadAllStudents=()=>{get(child(ref(db),"students")).then(snap=>{allStudentsTable.innerHTML="";if(snap.exists()){snap.forEach(c=>{const s=c.val();allStudentsTable.innerHTML+=`<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.father}</td><td>${s.phone}</td><td>${s.category}</td><td>${s.admission}</td><td><button onclick="deleteStudent('${s.roll}')">🗑</button></td></tr>`;});}else allStudentsTable.innerHTML="<tr><td colspan='7'>No Students</td></tr>";});};
+window.deleteStudent=async(roll)=>{await remove(ref(db,"students/"+roll));loadAllStudents();};
 
-    window.deleteStudent = async function(roll) {
-      if (confirm("Delete this student?")) {
-        await remove(ref(db, "students/" + roll));
-        await remove(ref(db, "results/" + roll));
-        loadAllStudents(); loadRollNumbers();
-      }
-    };
+// Load Students for Result
+window.loadStudentsForResults=()=>{get(child(ref(db),"students")).then(snap=>{if(!snap.exists())return resultTableContainer.innerHTML="<p>No Students Found</p>";let html=`<table><thead><tr><th>Roll</th><th>Name</th><th>Father</th><th>Namaz</th><th>Kalma</th><th>Nazra</th><th>Attendance%</th></tr></thead><tbody>`;snap.forEach(c=>{const s=c.val();html+=`<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.father}</td><td><input type='number' id='n${s.roll}'></td><td><input type='number' id='k${s.roll}'></td><td><input type='number' id='q${s.roll}'></td><td><input type='number' id='a${s.roll}'></td></tr>`;});html+="</tbody></table>";resultTableContainer.innerHTML=html;});};
 
-    window.loadExitList = function() {
-      get(child(ref(db), "exited")).then(snap => {
-        exitStudentsTable.innerHTML = "";
-        if (snap.exists()) {
-          snap.forEach(c => {
-            const s = c.val();
-            exitStudentsTable.innerHTML += `<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.date}</td><td>${s.reason}</td>
-            <td><button onclick="deleteExited('${s.roll}')">🗑 Delete</button></td></tr>`;
-          });
-        } else exitStudentsTable.innerHTML = "<tr><td colspan='5'>No Exited Students Found</td></tr>";
-      });
-    };
+// Save Results (Month-wise)
+window.saveAllResults=async()=>{const month=monthInput.value.trim();if(!month)return resMsg.textContent="⚠ Enter month!";const nT=+namazTotal.value,kT=+kalmaTotal.value,qT=+quranTotal.value;const snap=await get(child(ref(db),"students"));if(!snap.exists())return resMsg.textContent="⚠ No Students!";const promises=[];snap.forEach(c=>{const s=c.val();const d={roll:s.roll,name:s.name,father:s.father,month,namazObt:document.getElementById('n'+s.roll).value||0,kalmaObt:document.getElementById('k'+s.roll).value||0,quranObt:document.getElementById('q'+s.roll).value||0,attendance:document.getElementById('a'+s.roll).value||0,namazTotal:nT,kalmaTotal:kT,quranTotal:qT};promises.push(set(ref(db,"results/"+s.roll+"_"+month),d));});await Promise.all(promises);resMsg.textContent="✅ All Results Saved!";};
 
-    window.deleteExited = async function(roll) {
-      if (confirm("Delete this exited student?")) {
-        await remove(ref(db, "exited/" + roll));
-        loadExitList();
-      }
-    };
+// Load All Results
+window.loadAllResults=()=>{get(child(ref(db),"results")).then(snap=>{allResultsTable.innerHTML="";if(snap.exists()){snap.forEach(c=>{const r=c.val();const obt=(+r.namazObt||0)+(+r.kalmaObt||0)+(+r.quranObt||0);const total=(+r.namazTotal||0)+(+r.kalmaTotal||0)+(+r.quranTotal||0);allResultsTable.innerHTML+=`<tr><td>${r.roll}</td><td>${r.name}</td><td>${r.father}</td><td>${r.month}</td><td>${obt}/${total}</td><td>${r.attendance}%</td><td><button onclick="deleteResult('${r.roll}_${r.month}')">🗑</button></td></tr>`;});}else allResultsTable.innerHTML="<tr><td colspan='7'>No Results Found</td></tr>";});};
+window.deleteResult=async(key)=>{await remove(ref(db,"results/"+key));loadAllResults();};
 
-    window.loadRollNumbers = function() {
-      rRoll.innerHTML = "";
-      get(child(ref(db), "students")).then(snap => {
-        if (snap.exists()) {
-          rRoll.innerHTML = "<option value=''>Select Roll</option>";
-          snap.forEach(c => {
-            const s = c.val();
-            rRoll.innerHTML += `<option value='${s.roll}'>${s.roll} - ${s.name}</option>`;
-          });
-        } else rRoll.innerHTML = "<option>No Students Found</option>";
-      });
-    };
+// Public Check Result
+window.checkResult=()=>{const roll=searchRoll.value.trim();if(!roll)return resultOutput.textContent="⚠ Enter Roll Number!";get(child(ref(db),"results")).then(snap=>{if(snap.exists()){let found=false;snap.forEach(c=>{const d=c.val();if(d.roll===roll){found=true;const obt=(+d.namazObt)+(+d.kalmaObt)+(+d.quranObt);const total=(+d.namazTotal)+(+d.kalmaTotal)+(+d.quranTotal);resultOutput.innerHTML=`<h3>${d.name} (${d.roll})</h3><p><b>Father:</b> ${d.father}</p><p><b>Month:</b> ${d.month}</p><p>Namaz: ${d.namazObt}/${d.namazTotal}</p><p>Kalma: ${d.kalmaObt}/${d.kalmaTotal}</p><p>Nazra: ${d.quranObt}/${d.quranTotal}</p><p>Attendance: ${d.attendance}%</p><b>Total:</b> ${obt}/${total}`;}});if(!found)resultOutput.textContent="❌ No Record Found!";}else resultOutput.textContent="❌ No Results Yet!";});};
 
-    window.addResult = function() {
-      if (!rRoll.value || !rName.value || !monthInput.value)
-        return resMsg.textContent = "⚠ Fill all fields!";
-      set(ref(db, "results/" + rRoll.value), {
-        roll: rRoll.value, name: rName.value, month: monthInput.value,
-        namazObt: namazObt.value, namazTotal: namazTotal.value,
-        quranObt: quranObt.value, quranTotal: quranTotal.value,
-        kalmaObt: kalmaObt.value, kalmaTotal: kalmaTotal.value,
-        attendance: attendance.value
-      }).then(() => resMsg.textContent = "✅ Result Added!");
-    };
-
-    window.loadAllResults = function() {
-      get(child(ref(db), "results")).then(snap => {
-        allResultsTable.innerHTML = "";
-        if (snap.exists()) {
-          snap.forEach(c => {
-            const r = c.val();
-            const obt = (+r.namazObt||0)+(+r.quranObt||0)+(+r.kalmaObt||0);
-            const total = (+r.namazTotal||0)+(+r.quranTotal||0)+(+r.kalmaTotal||0);
-            allResultsTable.innerHTML += `<tr><td>${r.roll}</td><td>${r.name}</td><td>${r.month}</td><td>${obt}/${total}</td><td>${r.attendance}%</td>
-            <td><button onclick="deleteResult('${r.roll}')">🗑 Delete</button></td></tr>`;
-          });
-        } else allResultsTable.innerHTML = "<tr><td colspan='6'>No Results Found</td></tr>";
-      });
-    };
-
-    window.deleteResult = async function(roll) {
-      if (confirm("Delete this result?")) {
-        await remove(ref(db, "results/" + roll));
-        loadAllResults();
-      }
-    };
-
-    window.changeAdminCode = function() {
-      if (oldCode.value === localStorage.getItem("adminCode")) {
-        localStorage.setItem("adminCode", newCode.value);
-        codeMsg.textContent = "✅ Code Changed!";
-      } else codeMsg.textContent = "❌ Wrong old code!";
-    };
-
-    window.checkResult = function() {
-      get(child(ref(db), "results/" + searchRoll.value)).then(snap => {
-        if (snap.exists()) {
-          const d = snap.val();
-          const obt = (+d.namazObt||0)+(+d.quranObt||0)+(+d.kalmaObt||0);
-          const total = (+d.namazTotal||0)+(+d.quranTotal||0)+(+d.kalmaTotal||0);
-          resultOutput.innerHTML = `
-            <h3>${d.name} (${d.roll})</h3>
-            <p><b>Month:</b> ${d.month}</p>
-            <p>Namaz: ${d.namazObt}/${d.namazTotal}</p>
-            <p>Quran: ${d.quranObt}/${d.quranTotal}</p>
-            <p>Kalma: ${d.kalmaObt}/${d.kalmaTotal}</p>
-            <p>Attendance: ${d.attendance}%</p>
-            <hr><b>Total:</b> ${obt}/${total}`;
-        } else resultOutput.innerHTML = "❌ No record found!";
-      });
-    };
-  </script>
+// Change Code
+window.changeAdminCode=()=>{if(oldCode.value===localStorage.getItem("adminCode")){localStorage.setItem("adminCode",newCode.value);codeMsg.textContent="✅ Code Changed!";}else codeMsg.textContent="❌ Wrong old code!";};
+</script>
 </body>
 </html>
