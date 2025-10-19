@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -132,7 +133,6 @@ th { background:#c8e6c9; }
   <p id="codeMsg"></p>
 </section>
 
-<!-- 🔥 SCRIPT -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getDatabase, ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
@@ -148,47 +148,193 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-window.db=db;window.ref=ref;window.remove=remove;window.child=child;window.get=get;window.set=set;
+
+// ✅ Ensure Admin Code exists in Firebase
+const adminRef = ref(db, "admin/code");
+get(adminRef).then(snap => { if (!snap.exists()) set(adminRef, "6457"); });
 
 // Navigation
-window.showSection=id=>{document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");};
+window.showSection=id=>{
+  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+};
 
-// Admin Code
-if(!localStorage.getItem("adminCode"))localStorage.setItem("adminCode","6457");
+// 🔐 Admin Login
+window.adminLogin=async()=>{
+  const code=adminCode.value.trim();
+  const snap=await get(ref(db,"admin/code"));
+  const realCode=snap.exists()?snap.val():"6457";
+  if(code===realCode){
+    document.querySelectorAll("#studentBtn,#logoutBtn,#resultBtn,#allResultBtn,#changeCodeBtn,#exitListBtn,#allStudentBtn")
+      .forEach(b=>b.classList.remove("hidden"));
+    document.getElementById("loginBtn").classList.add("hidden");
+    loginMsg.textContent="✅ Login Successful!";
+    showSection("studentSection");
+  } else loginMsg.textContent="❌ Wrong Admin Code!";
+};
 
-// Admin Login
-window.adminLogin=()=>{if(adminCode.value===localStorage.getItem("adminCode")){document.querySelectorAll("#studentBtn,#logoutBtn,#resultBtn,#allResultBtn,#changeCodeBtn,#exitListBtn,#allStudentBtn").forEach(b=>b.classList.remove("hidden"));document.getElementById("loginBtn").classList.add("hidden");loginMsg.textContent="✅ Login Successful!";showSection("studentSection");}else loginMsg.textContent="❌ Wrong Admin Code!";};
-window.adminLogout=()=>{document.querySelectorAll("#studentBtn,#logoutBtn,#resultBtn,#allResultBtn,#changeCodeBtn,#exitListBtn,#allStudentBtn").forEach(b=>b.classList.add("hidden"));document.getElementById("loginBtn").classList.remove("hidden");showSection("resultSection");};
+// Logout
+window.adminLogout=()=>{
+  document.querySelectorAll("#studentBtn,#logoutBtn,#resultBtn,#allResultBtn,#changeCodeBtn,#exitListBtn,#allStudentBtn")
+    .forEach(b=>b.classList.add("hidden"));
+  document.getElementById("loginBtn").classList.remove("hidden");
+  showSection("resultSection");
+};
 
 // Add Student
-window.addStudent=async()=>{if(!nameInput.value||!fatherInput.value||!rollInput.value||!categoryInput.value)return stdMsg.textContent="⚠ Fill all fields!";await set(ref(db,"students/"+rollInput.value),{name:nameInput.value,father:fatherInput.value,phone:phoneInput.value,roll:rollInput.value,admission:admissionInput.value,category:categoryInput.value});stdMsg.textContent="✅ Student Added!";nameInput.value=fatherInput.value=phoneInput.value=rollInput.value="";};
+window.addStudent=async()=>{
+  if(!nameInput.value||!fatherInput.value||!rollInput.value||!categoryInput.value)
+    return stdMsg.textContent="⚠ Fill all fields!";
+  await set(ref(db,"students/"+rollInput.value),{
+    name:nameInput.value,father:fatherInput.value,phone:phoneInput.value,
+    roll:rollInput.value,admission:admissionInput.value,category:categoryInput.value
+  });
+  stdMsg.textContent="✅ Student Added!";
+  nameInput.value=fatherInput.value=phoneInput.value=rollInput.value="";
+};
 
 // Exit Student
-window.exitStudent=async()=>{const roll=exitRoll.value.trim();if(!roll||!exitDate.value||!exitReason.value)return exitMsg.textContent="⚠ Fill all fields!";const s=await get(child(ref(db),"students/"+roll));if(s.exists()){const st=s.val();await set(ref(db,"exited/"+roll),{roll,name:st.name,date:exitDate.value,reason:exitReason.value});await remove(ref(db,"students/"+roll));exitMsg.textContent="✅ Student Exited!";}else exitMsg.textContent="❌ Roll Not Found!";};
+window.exitStudent=async()=>{
+  const roll=exitRoll.value.trim();
+  if(!roll||!exitDate.value||!exitReason.value)
+    return exitMsg.textContent="⚠ Fill all fields!";
+  const s=await get(child(ref(db),"students/"+roll));
+  if(s.exists()){
+    const st=s.val();
+    await set(ref(db,"exited/"+roll),{roll,name:st.name,date:exitDate.value,reason:exitReason.value});
+    await remove(ref(db,"students/"+roll));
+    exitMsg.textContent="✅ Student Exited!";
+  } else exitMsg.textContent="❌ Roll Not Found!";
+};
 
-// Load Exit List
-window.loadExitList=()=>{get(child(ref(db),"exited")).then(snap=>{exitStudentsTable.innerHTML="";if(snap.exists()){snap.forEach(c=>{const s=c.val();exitStudentsTable.innerHTML+=`<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.date}</td><td>${s.reason}</td><td><button onclick="deleteExitStudent('${s.roll}')">🗑</button></td></tr>`;});}else exitStudentsTable.innerHTML="<tr><td colspan='5'>No Exited Students</td></tr>";});};
+// Exit List
+window.loadExitList=()=>{
+  get(child(ref(db),"exited")).then(snap=>{
+    exitStudentsTable.innerHTML="";
+    if(snap.exists()){
+      snap.forEach(c=>{
+        const s=c.val();
+        exitStudentsTable.innerHTML+=`<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.date}</td><td>${s.reason}</td>
+        <td><button onclick="deleteExitStudent('${s.roll}')">🗑</button></td></tr>`;
+      });
+    } else exitStudentsTable.innerHTML="<tr><td colspan='5'>No Exited Students</td></tr>";
+  });
+};
 window.deleteExitStudent=async(roll)=>{await remove(ref(db,"exited/"+roll));loadExitList();};
 
-// Load All Students
-window.loadAllStudents=()=>{get(child(ref(db),"students")).then(snap=>{allStudentsTable.innerHTML="";if(snap.exists()){snap.forEach(c=>{const s=c.val();allStudentsTable.innerHTML+=`<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.father}</td><td>${s.phone}</td><td>${s.category}</td><td>${s.admission}</td><td><button onclick="deleteStudent('${s.roll}')">🗑</button></td></tr>`;});}else allStudentsTable.innerHTML="<tr><td colspan='7'>No Students</td></tr>";});};
+// All Students
+window.loadAllStudents=()=>{
+  get(child(ref(db),"students")).then(snap=>{
+    allStudentsTable.innerHTML="";
+    if(snap.exists()){
+      snap.forEach(c=>{
+        const s=c.val();
+        allStudentsTable.innerHTML+=`<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.father}</td><td>${s.phone}</td><td>${s.category}</td><td>${s.admission}</td>
+        <td><button onclick="deleteStudent('${s.roll}')">🗑</button></td></tr>`;
+      });
+    } else allStudentsTable.innerHTML="<tr><td colspan='7'>No Students</td></tr>";
+  });
+};
 window.deleteStudent=async(roll)=>{await remove(ref(db,"students/"+roll));loadAllStudents();};
 
-// Load Students for Result
-window.loadStudentsForResults=()=>{get(child(ref(db),"students")).then(snap=>{if(!snap.exists())return resultTableContainer.innerHTML="<p>No Students Found</p>";let html=`<table><thead><tr><th>Roll</th><th>Name</th><th>Father</th><th>Namaz</th><th>Kalma</th><th>Nazra</th><th>Attendance%</th></tr></thead><tbody>`;snap.forEach(c=>{const s=c.val();html+=`<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.father}</td><td><input type='number' id='n${s.roll}'></td><td><input type='number' id='k${s.roll}'></td><td><input type='number' id='q${s.roll}'></td><td><input type='number' id='a${s.roll}'></td></tr>`;});html+="</tbody></table>";resultTableContainer.innerHTML=html;});};
+// Add Results
+window.loadStudentsForResults=()=>{
+  get(child(ref(db),"students")).then(snap=>{
+    if(!snap.exists())return resultTableContainer.innerHTML="<p>No Students Found</p>";
+    let html=`<table><thead><tr><th>Roll</th><th>Name</th><th>Father</th><th>Namaz</th><th>Kalma</th><th>Nazra</th><th>Attendance%</th></tr></thead><tbody>`;
+    snap.forEach(c=>{
+      const s=c.val();
+      html+=`<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.father}</td>
+      <td><input type='number' id='n${s.roll}'></td>
+      <td><input type='number' id='k${s.roll}'></td>
+      <td><input type='number' id='q${s.roll}'></td>
+      <td><input type='number' id='a${s.roll}'></td></tr>`;
+    });
+    html+="</tbody></table>";
+    resultTableContainer.innerHTML=html;
+  });
+};
 
-// Save Results (Month-wise)
-window.saveAllResults=async()=>{const month=monthInput.value.trim();if(!month)return resMsg.textContent="⚠ Enter month!";const nT=+namazTotal.value,kT=+kalmaTotal.value,qT=+quranTotal.value;const snap=await get(child(ref(db),"students"));if(!snap.exists())return resMsg.textContent="⚠ No Students!";const promises=[];snap.forEach(c=>{const s=c.val();const d={roll:s.roll,name:s.name,father:s.father,month,namazObt:document.getElementById('n'+s.roll).value||0,kalmaObt:document.getElementById('k'+s.roll).value||0,quranObt:document.getElementById('q'+s.roll).value||0,attendance:document.getElementById('a'+s.roll).value||0,namazTotal:nT,kalmaTotal:kT,quranTotal:qT};promises.push(set(ref(db,"results/"+s.roll+"_"+month),d));});await Promise.all(promises);resMsg.textContent="✅ All Results Saved!";};
+// Save Results (month-wise)
+window.saveAllResults=async()=>{
+  const month=monthInput.value.trim();
+  if(!month)return resMsg.textContent="⚠ Enter month!";
+  const nT=+namazTotal.value,kT=+kalmaTotal.value,qT=+quranTotal.value;
+  const snap=await get(child(ref(db),"students"));
+  if(!snap.exists())return resMsg.textContent="⚠ No Students!";
+  const promises=[];
+  snap.forEach(c=>{
+    const s=c.val();
+    const d={
+      roll:s.roll,name:s.name,father:s.father,month,
+      namazObt:document.getElementById('n'+s.roll).value||0,
+      kalmaObt:document.getElementById('k'+s.roll).value||0,
+      quranObt:document.getElementById('q'+s.roll).value||0,
+      attendance:document.getElementById('a'+s.roll).value||0,
+      namazTotal:nT,kalmaTotal:kT,quranTotal:qT
+    };
+    promises.push(set(ref(db,"results/"+s.roll+"_"+month),d));
+  });
+  await Promise.all(promises);
+  resMsg.textContent="✅ All Results Saved!";
+};
 
-// Load All Results
-window.loadAllResults=()=>{get(child(ref(db),"results")).then(snap=>{allResultsTable.innerHTML="";if(snap.exists()){snap.forEach(c=>{const r=c.val();const obt=(+r.namazObt||0)+(+r.kalmaObt||0)+(+r.quranObt||0);const total=(+r.namazTotal||0)+(+r.kalmaTotal||0)+(+r.quranTotal||0);allResultsTable.innerHTML+=`<tr><td>${r.roll}</td><td>${r.name}</td><td>${r.father}</td><td>${r.month}</td><td>${obt}/${total}</td><td>${r.attendance}%</td><td><button onclick="deleteResult('${r.roll}_${r.month}')">🗑</button></td></tr>`;});}else allResultsTable.innerHTML="<tr><td colspan='7'>No Results Found</td></tr>";});};
+// All Results
+window.loadAllResults=()=>{
+  get(child(ref(db),"results")).then(snap=>{
+    allResultsTable.innerHTML="";
+    if(snap.exists()){
+      snap.forEach(c=>{
+        const r=c.val();
+        const obt=(+r.namazObt||0)+(+r.kalmaObt||0)+(+r.quranObt||0);
+        const total=(+r.namazTotal||0)+(+r.kalmaTotal||0)+(+r.quranTotal||0);
+        allResultsTable.innerHTML+=`<tr><td>${r.roll}</td><td>${r.name}</td><td>${r.father}</td><td>${r.month}</td><td>${obt}/${total}</td><td>${r.attendance}%</td>
+        <td><button onclick="deleteResult('${r.roll}_${r.month}')">🗑</button></td></tr>`;
+      });
+    } else allResultsTable.innerHTML="<tr><td colspan='7'>No Results Found</td></tr>";
+  });
+};
 window.deleteResult=async(key)=>{await remove(ref(db,"results/"+key));loadAllResults();};
 
-// Public Check Result
-window.checkResult=()=>{const roll=searchRoll.value.trim();if(!roll)return resultOutput.textContent="⚠ Enter Roll Number!";get(child(ref(db),"results")).then(snap=>{if(snap.exists()){let found=false;snap.forEach(c=>{const d=c.val();if(d.roll===roll){found=true;const obt=(+d.namazObt)+(+d.kalmaObt)+(+d.quranObt);const total=(+d.namazTotal)+(+d.kalmaTotal)+(+d.quranTotal);resultOutput.innerHTML=`<h3>${d.name} (${d.roll})</h3><p><b>Father:</b> ${d.father}</p><p><b>Month:</b> ${d.month}</p><p>Namaz: ${d.namazObt}/${d.namazTotal}</p><p>Kalma: ${d.kalmaObt}/${d.kalmaTotal}</p><p>Nazra: ${d.quranObt}/${d.quranTotal}</p><p>Attendance: ${d.attendance}%</p><b>Total:</b> ${obt}/${total}`;}});if(!found)resultOutput.textContent="❌ No Record Found!";}else resultOutput.textContent="❌ No Results Yet!";});};
+// Check Result (Public)
+window.checkResult=()=>{
+  const roll=searchRoll.value.trim();
+  if(!roll)return resultOutput.textContent="⚠ Enter Roll Number!";
+  get(child(ref(db),"results")).then(snap=>{
+    if(snap.exists()){
+      let found=false;
+      snap.forEach(c=>{
+        const d=c.val();
+        if(d.roll===roll){
+          found=true;
+          const obt=(+d.namazObt)+(+d.kalmaObt)+(+d.quranObt);
+          const total=(+d.namazTotal)+(+d.kalmaTotal)+(+d.quranTotal);
+          resultOutput.innerHTML=`<h3>${d.name} (${d.roll})</h3>
+          <p><b>Father:</b> ${d.father}</p>
+          <p><b>Month:</b> ${d.month}</p>
+          <p>Namaz: ${d.namazObt}/${d.namazTotal}</p>
+          <p>Kalma: ${d.kalmaObt}/${d.kalmaTotal}</p>
+          <p>Nazra: ${d.quranObt}/${d.quranTotal}</p>
+          <p>Attendance: ${d.attendance}%</p>
+          <b>Total:</b> ${obt}/${total}`;
+        }
+      });
+      if(!found)resultOutput.textContent="❌ No Record Found!";
+    } else resultOutput.textContent="❌ No Results Yet!";
+  });
+};
 
-// Change Code
-window.changeAdminCode=()=>{if(oldCode.value===localStorage.getItem("adminCode")){localStorage.setItem("adminCode",newCode.value);codeMsg.textContent="✅ Code Changed!";}else codeMsg.textContent="❌ Wrong old code!";};
+// Change Admin Code (Firebase-based)
+window.changeAdminCode=async()=>{
+  const old=oldCode.value.trim(),newC=newCode.value.trim();
+  const snap=await get(ref(db,"admin/code"));
+  const realCode=snap.exists()?snap.val():"6457";
+  if(old===realCode && newC){
+    await set(ref(db,"admin/code"),newC);
+    codeMsg.textContent="✅ Admin Code Changed Successfully!";
+    oldCode.value=newCode.value="";
+  } else codeMsg.textContent="❌ Wrong Old Code!";
+};
 </script>
 </body>
 </html>
