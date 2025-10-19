@@ -31,6 +31,8 @@
     <button id="studentListBtn" class="hidden" onclick="showSection('studentListSection')">Student List</button>
     <button id="exitListBtn" class="hidden" onclick="showSection('exitListSection')">Exit Student List</button>
     <button id="resultBtn" class="hidden" onclick="showSection('addResultSection')">Add Result</button>
+    <button id="allResultBtn" class="hidden" onclick="showSection('allResultsSection')">All Results List</button>
+    <button id="deleteResultBtn" class="hidden" onclick="showSection('deleteResultSection')">Delete Result</button>
     <button id="changeCodeBtn" class="hidden" onclick="showSection('changeCodeSection')">Change Admin Code</button>
     <button id="logoutBtn" class="hidden" onclick="adminLogout()">Logout</button>
   </nav>
@@ -56,9 +58,8 @@
     <h2>Add Student</h2>
     <input type="text" id="name" placeholder="Student Name">
     <input type="text" id="roll" placeholder="Roll Number">
-    <input type="date" id="admission" placeholder="Admission Date">
+    <input type="date" id="admission">
 
-    <!-- 🔸 New Class/Category Field -->
     <select id="category">
       <option value="">Select Class/Category</option>
       <option value="Noorani Qaida">Noorani Qaida</option>
@@ -94,7 +95,7 @@
     <h2>Exit Student List</h2>
     <button class="btn" onclick="loadExitList()">Refresh Exit List</button>
     <table>
-      <thead><tr><th>Roll</th><th>Exit Date</th><th>Reason</th></tr></thead>
+      <thead><tr><th>Roll</th><th>Name</th><th>Exit Date</th><th>Reason</th></tr></thead>
       <tbody id="exitTable"></tbody>
     </table>
   </section>
@@ -114,6 +115,26 @@
     <input type="number" id="attendance" placeholder="Attendance (%)">
     <button class="btn" onclick="addResult()">Add Result</button>
     <p id="resMsg"></p>
+  </section>
+
+  <!-- 🔹 All Results List -->
+  <section id="allResultsSection">
+    <h2>All Students Results</h2>
+    <button class="btn" onclick="loadAllResults()">Refresh All Results</button>
+    <table>
+      <thead>
+        <tr><th>Roll</th><th>Name</th><th>Month</th><th>Total Marks</th><th>Attendance</th></tr>
+      </thead>
+      <tbody id="allResultsTable"></tbody>
+    </table>
+  </section>
+
+  <!-- 🔹 Delete Result -->
+  <section id="deleteResultSection">
+    <h2>Delete Result</h2>
+    <select id="delRoll"></select>
+    <button class="btn" onclick="deleteResult()">Delete Selected Result</button>
+    <p id="delMsg"></p>
   </section>
 
   <!-- 🔹 Change Admin Code -->
@@ -142,7 +163,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    window.showSection = function (id) {
+    window.showSection = id => {
       document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
       document.getElementById(id).classList.add("active");
     };
@@ -150,14 +171,13 @@
     if (!localStorage.getItem("adminCode")) localStorage.setItem("adminCode", "6457");
 
     window.adminLogin = function () {
-      const inputCode = document.getElementById("adminCode").value.trim();
-      const msg = document.getElementById("loginMsg");
-      const savedCode = localStorage.getItem("adminCode");
-
-      if (inputCode === savedCode) {
+      const inputCode = adminCode.value.trim();
+      const msg = loginMsg;
+      const saved = localStorage.getItem("adminCode");
+      if (inputCode === saved) {
         msg.textContent = "✅ Login Successful!";
         msg.style.color = "green";
-        ["loginBtn","studentBtn","resultBtn","logoutBtn","studentListBtn","changeCodeBtn","exitListBtn"].forEach(id => document.getElementById(id).classList.toggle("hidden"));
+        ["loginBtn","studentBtn","resultBtn","logoutBtn","studentListBtn","changeCodeBtn","exitListBtn","allResultBtn","deleteResultBtn"].forEach(id => document.getElementById(id).classList.toggle("hidden"));
         showSection("studentSection");
         loadRollNumbers();
       } else {
@@ -167,65 +187,61 @@
     };
 
     window.adminLogout = function () {
-      ["loginBtn","studentBtn","resultBtn","logoutBtn","studentListBtn","changeCodeBtn","exitListBtn"].forEach(id => document.getElementById(id).classList.toggle("hidden"));
+      ["loginBtn","studentBtn","resultBtn","logoutBtn","studentListBtn","changeCodeBtn","exitListBtn","allResultBtn","deleteResultBtn"].forEach(id => document.getElementById(id).classList.toggle("hidden"));
       showSection("resultSection");
       alert("Logged out successfully!");
     };
 
     // --- Add Student ---
     window.addStudent = function () {
-      const name = document.getElementById("name").value.trim();
-      const roll = document.getElementById("roll").value.trim();
-      const admission = document.getElementById("admission").value;
-      const category = document.getElementById("category").value;
-      const msg = document.getElementById("stdMsg");
-
+      const name = name.value.trim();
+      const roll = roll.value.trim();
+      const admission = admission.value;
+      const category = category.value;
+      const msg = stdMsg;
       if (!name || !roll || !category) {
         msg.textContent = "⚠ Please fill all fields!";
         return;
       }
-
       set(ref(db, "students/" + roll), { name, roll, admission, category })
-        .then(() => {
-          msg.textContent = "✅ Student Added Successfully!";
-          loadRollNumbers();
-        })
-        .catch(err => msg.textContent = "❌ Error: " + err.message);
+        .then(() => { msg.textContent = "✅ Student Added Successfully!"; loadRollNumbers(); })
+        .catch(e => msg.textContent = "❌ Error: " + e.message);
     };
 
     // --- Exit Student ---
-    window.exitStudent = function () {
-      const roll = document.getElementById("exitRoll").value.trim();
-      const date = document.getElementById("exitDate").value;
-      const reason = document.getElementById("exitReason").value.trim();
-      const msg = document.getElementById("exitMsg");
-
+    window.exitStudent = async function () {
+      const roll = exitRoll.value.trim();
+      const date = exitDate.value;
+      const reason = exitReason.value.trim();
+      const msg = exitMsg;
       if (!roll || !date || !reason) {
         msg.textContent = "⚠ Please fill all fields!";
         msg.style.color = "red";
         return;
       }
-
-      set(ref(db, "exited/" + roll), { roll, date, reason })
-        .then(() => {
-          remove(ref(db, "students/" + roll));
-          remove(ref(db, "results/" + roll));
-          msg.textContent = "✅ Student Exited & Removed Successfully!";
-          msg.style.color = "green";
-        })
-        .catch(err => msg.textContent = "❌ Error: " + err.message);
+      const snapshot = await get(child(ref(db), "students/" + roll));
+      if (snapshot.exists()) {
+        const s = snapshot.val();
+        await set(ref(db, "exited/" + roll), { roll, name: s.name, date, reason });
+        await remove(ref(db, "students/" + roll));
+        await remove(ref(db, "results/" + roll));
+        msg.textContent = "✅ Student Exited & Removed Successfully!";
+        msg.style.color = "green";
+      } else {
+        msg.textContent = "❌ Roll not found!";
+        msg.style.color = "red";
+      }
     };
 
     // --- Student List ---
     window.loadStudentList = function () {
-      const table = document.getElementById("studentTable");
-      const dbRef = ref(db);
-      get(child(dbRef, "students")).then(snapshot => {
+      const table = studentTable;
+      get(child(ref(db), "students")).then(snap => {
         table.innerHTML = "";
-        if (snapshot.exists()) {
-          snapshot.forEach(childSnap => {
-            const s = childSnap.val();
-            table.innerHTML += `<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.category || "-"}</td><td>${s.admission || "-"}</td></tr>`;
+        if (snap.exists()) {
+          snap.forEach(c => {
+            const s = c.val();
+            table.innerHTML += `<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.category||"-"}</td><td>${s.admission||"-"}</td></tr>`;
           });
         } else table.innerHTML = "<tr><td colspan='4'>No Students Found</td></tr>";
       });
@@ -233,107 +249,136 @@
 
     // --- Exit List ---
     window.loadExitList = function () {
-      const table = document.getElementById("exitTable");
-      const dbRef = ref(db);
-      get(child(dbRef, "exited")).then(snapshot => {
+      const table = exitTable;
+      get(child(ref(db), "exited")).then(snap => {
         table.innerHTML = "";
-        if (snapshot.exists()) {
-          snapshot.forEach(childSnap => {
-            const s = childSnap.val();
-            table.innerHTML += `<tr><td>${s.roll}</td><td>${s.date}</td><td>${s.reason}</td></tr>`;
+        if (snap.exists()) {
+          snap.forEach(c => {
+            const s = c.val();
+            table.innerHTML += `<tr><td>${s.roll}</td><td>${s.name||"-"}</td><td>${s.date}</td><td>${s.reason}</td></tr>`;
           });
-        } else table.innerHTML = "<tr><td colspan='3'>No Exit Students Found</td></tr>";
+        } else table.innerHTML = "<tr><td colspan='4'>No Exit Students Found</td></tr>";
       });
     };
 
     // --- Load Roll Numbers ---
     window.loadRollNumbers = function () {
-      const select = document.getElementById("rRoll");
+      const select = rRoll;
       select.innerHTML = "";
-      const dbRef = ref(db);
-      get(child(dbRef, "students")).then(snapshot => {
-        if (snapshot.exists()) {
+      get(child(ref(db), "students")).then(snap => {
+        if (snap.exists()) {
           select.innerHTML = "<option value=''>Select Roll Number</option>";
-          snapshot.forEach(childSnap => {
-            const s = childSnap.val();
+          snap.forEach(c => {
+            const s = c.val();
             select.innerHTML += `<option value='${s.roll}'>${s.roll} - ${s.name}</option>`;
           });
-        } else {
-          select.innerHTML = "<option>No Students Found</option>";
-        }
+        } else select.innerHTML = "<option>No Students Found</option>";
+      });
+
+      // Also fill delete result dropdown
+      const delSelect = delRoll;
+      delSelect.innerHTML = "";
+      get(child(ref(db), "results")).then(snap => {
+        if (snap.exists()) {
+          delSelect.innerHTML = "<option value=''>Select Roll to Delete</option>";
+          snap.forEach(c => {
+            const s = c.val();
+            delSelect.innerHTML += `<option value='${s.roll}'>${s.roll} - ${s.name}</option>`;
+          });
+        } else delSelect.innerHTML = "<option>No Results Found</option>";
       });
     };
 
     // --- Add Result ---
     window.addResult = function () {
-      const roll = document.getElementById("rRoll").value.trim();
-      const name = document.getElementById("rName").value.trim();
-      const month = document.getElementById("month").value.trim();
-      const namazObt = document.getElementById("namazObt").value;
-      const namazTotal = document.getElementById("namazTotal").value;
-      const quranObt = document.getElementById("quranObt").value;
-      const quranTotal = document.getElementById("quranTotal").value;
-      const kalmaObt = document.getElementById("kalmaObt").value;
-      const kalmaTotal = document.getElementById("kalmaTotal").value;
-      const attendance = document.getElementById("attendance").value;
-      const msg = document.getElementById("resMsg");
-
-      if (!roll || !name || !month) {
-        msg.textContent = "⚠ Please fill all main fields!";
-        return;
-      }
-
+      const roll = rRoll.value.trim();
+      const name = rName.value.trim();
+      const month = month.value.trim();
+      if (!roll || !name || !month) return resMsg.textContent = "⚠ Please fill all main fields!";
       set(ref(db, "results/" + roll), {
         roll, name, month,
-        namazObt, namazTotal,
-        quranObt, quranTotal,
-        kalmaObt, kalmaTotal,
-        attendance
-      }).then(() => msg.textContent = "✅ Result Added Successfully!");
+        namazObt: namazObt.value, namazTotal: namazTotal.value,
+        quranObt: quranObt.value, quranTotal: quranTotal.value,
+        kalmaObt: kalmaObt.value, kalmaTotal: kalmaTotal.value,
+        attendance: attendance.value
+      }).then(() => { resMsg.textContent = "✅ Result Added Successfully!"; loadRollNumbers(); });
+    };
+
+    // --- All Students Results ---
+    window.loadAllResults = function () {
+      const table = allResultsTable;
+      get(child(ref(db), "results")).then(snap => {
+        table.innerHTML = "";
+        if (snap.exists()) {
+          snap.forEach(c => {
+            const r = c.val();
+            const totalObt = (+r.namazObt||0)+(+r.quranObt||0)+(+r.kalmaObt||0);
+            const totalMarks = (+r.namazTotal||0)+(+r.quranTotal||0)+(+r.kalmaTotal||0);
+            table.innerHTML += `
+              <tr>
+                <td>${r.roll}</td>
+                <td>${r.name}</td>
+                <td>${r.month}</td>
+                <td>${totalObt}/${totalMarks}</td>
+                <td>${r.attendance||"-"}%</td>
+              </tr>`;
+          });
+        } else table.innerHTML = "<tr><td colspan='5'>No Results Found</td></tr>";
+      });
+    };
+
+    // --- Delete Result ---
+    window.deleteResult = async function () {
+      const roll = delRoll.value.trim();
+      const msg = delMsg;
+      if (!roll) {
+        msg.textContent = "⚠ Please select a Roll Number!";
+        msg.style.color = "red";
+        return;
+      }
+      const snapshot = await get(child(ref(db), "results/" + roll));
+      if (snapshot.exists()) {
+        await remove(ref(db, "results/" + roll));
+        msg.textContent = "✅ Result deleted successfully!";
+        msg.style.color = "green";
+        loadRollNumbers();
+      } else {
+        msg.textContent = "❌ Result not found!";
+        msg.style.color = "red";
+      }
     };
 
     // --- Change Admin Code ---
     window.changeAdminCode = function () {
-      const oldCode = document.getElementById("oldCode").value.trim();
-      const newCode = document.getElementById("newCode").value.trim();
-      const msg = document.getElementById("codeMsg");
-      const savedCode = localStorage.getItem("adminCode");
-
-      if (oldCode === savedCode && newCode) {
-        localStorage.setItem("adminCode", newCode);
-        msg.textContent = "✅ Admin Code Changed Successfully!";
-        msg.style.color = "green";
+      const oldC = oldCode.value.trim(), newC = newCode.value.trim();
+      if (oldC === localStorage.getItem("adminCode") && newC) {
+        localStorage.setItem("adminCode", newC);
+        codeMsg.textContent = "✅ Code Changed!";
+        codeMsg.style.color = "green";
       } else {
-        msg.textContent = "❌ Wrong old code or empty new code!";
-        msg.style.color = "red";
+        codeMsg.textContent = "❌ Wrong old code!";
+        codeMsg.style.color = "red";
       }
     };
 
     // --- Check Result ---
     window.checkResult = function () {
-      const roll = document.getElementById("searchRoll").value.trim();
-      const output = document.getElementById("resultOutput");
-      const dbRef = ref(db);
-
-      get(child(dbRef, "results/" + roll)).then(snapshot => {
-        if (snapshot.exists()) {
-          const d = snapshot.val();
-          const totalObt = Number(d.namazObt || 0) + Number(d.quranObt || 0) + Number(d.kalmaObt || 0);
-          const totalMax = Number(d.namazTotal || 0) + Number(d.quranTotal || 0) + Number(d.kalmaTotal || 0);
-
-          output.innerHTML = `
+      const roll = searchRoll.value.trim();
+      const out = resultOutput;
+      get(child(ref(db), "results/" + roll)).then(snap => {
+        if (snap.exists()) {
+          const d = snap.val();
+          const obt = (+d.namazObt||0)+(+d.quranObt||0)+(+d.kalmaObt||0);
+          const total = (+d.namazTotal||0)+(+d.quranTotal||0)+(+d.kalmaTotal||0);
+          out.innerHTML = `
             <h3>${d.name} (Roll: ${d.roll})</h3>
             <p><b>Month:</b> ${d.month}</p>
             <p>🕌 Namaz: ${d.namazObt}/${d.namazTotal}</p>
             <p>📖 Quran: ${d.quranObt}/${d.quranTotal}</p>
             <p>☪ Kalma: ${d.kalmaObt}/${d.kalmaTotal}</p>
             <p>📅 Attendance: ${d.attendance}%</p>
-            <hr>
-            <p><b>Total Marks:</b> ${totalObt}/${totalMax}</p>
-          `;
-        } else {
-          output.innerHTML = "❌ No record found!";
-        }
+            <hr><b>Total Marks:</b> ${obt}/${total}`;
+        } else out.innerHTML = "❌ No record found!";
       });
     };
   </script>
