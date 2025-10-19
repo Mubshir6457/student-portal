@@ -16,6 +16,9 @@
     input, select { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; }
     .btn { background: #388e3c; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; margin-top: 5px; }
     .btn:hover { background: #2e7d32; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #c8e6c9; }
   </style>
 </head>
 <body>
@@ -25,7 +28,10 @@
     <button onclick="showSection('resultSection')">Check Result</button>
     <button id="loginBtn" onclick="showSection('loginSection')">Admin Login</button>
     <button id="studentBtn" class="hidden" onclick="showSection('studentSection')">Add Student</button>
+    <button id="studentListBtn" class="hidden" onclick="showSection('studentListSection')">Student List</button>
+    <button id="exitListBtn" class="hidden" onclick="showSection('exitListSection')">Exit Student List</button>
     <button id="resultBtn" class="hidden" onclick="showSection('addResultSection')">Add Result</button>
+    <button id="changeCodeBtn" class="hidden" onclick="showSection('changeCodeSection')">Change Admin Code</button>
     <button id="logoutBtn" class="hidden" onclick="adminLogout()">Logout</button>
   </nav>
 
@@ -45,20 +51,58 @@
     <p id="loginMsg"></p>
   </section>
 
-  <!-- 🔹 Add Student -->
+  <!-- 🔹 Add Student + Exit Student -->
   <section id="studentSection">
     <h2>Add Student</h2>
     <input type="text" id="name" placeholder="Student Name">
     <input type="text" id="roll" placeholder="Roll Number">
     <input type="date" id="admission" placeholder="Admission Date">
+
+    <!-- 🔸 New Class/Category Field -->
+    <select id="category">
+      <option value="">Select Class/Category</option>
+      <option value="Noorani Qaida">Noorani Qaida</option>
+      <option value="Separa">Separa</option>
+      <option value="Nazra">Nazra</option>
+      <option value="Hifz">Hifz</option>
+    </select>
+
     <button class="btn" onclick="addStudent()">Add Student</button>
     <p id="stdMsg"></p>
+
+    <hr>
+    <h2>Exit Student</h2>
+    <input type="text" id="exitRoll" placeholder="Enter Roll Number">
+    <input type="date" id="exitDate">
+    <input type="text" id="exitReason" placeholder="Reason for Exit">
+    <button class="btn" onclick="exitStudent()">Exit Student</button>
+    <p id="exitMsg"></p>
+  </section>
+
+  <!-- 🔹 Student List -->
+  <section id="studentListSection">
+    <h2>All Students</h2>
+    <button class="btn" onclick="loadStudentList()">Refresh List</button>
+    <table>
+      <thead><tr><th>Roll</th><th>Name</th><th>Class</th><th>Admission Date</th></tr></thead>
+      <tbody id="studentTable"></tbody>
+    </table>
+  </section>
+
+  <!-- 🔹 Exit Student List -->
+  <section id="exitListSection">
+    <h2>Exit Student List</h2>
+    <button class="btn" onclick="loadExitList()">Refresh Exit List</button>
+    <table>
+      <thead><tr><th>Roll</th><th>Exit Date</th><th>Reason</th></tr></thead>
+      <tbody id="exitTable"></tbody>
+    </table>
   </section>
 
   <!-- 🔹 Add Result -->
   <section id="addResultSection">
     <h2>Add Result</h2>
-    <input type="text" id="rRoll" placeholder="Roll Number">
+    <select id="rRoll"></select>
     <input type="text" id="rName" placeholder="Name">
     <input type="text" id="month" placeholder="Month (e.g. October)">
     <input type="number" id="namazObt" placeholder="Namaz Obtained">
@@ -72,9 +116,18 @@
     <p id="resMsg"></p>
   </section>
 
+  <!-- 🔹 Change Admin Code -->
+  <section id="changeCodeSection">
+    <h2>Change Admin Code</h2>
+    <input type="password" id="oldCode" placeholder="Enter Old Code">
+    <input type="password" id="newCode" placeholder="Enter New Code">
+    <button class="btn" onclick="changeAdminCode()">Change Code</button>
+    <p id="codeMsg"></p>
+  </section>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    import { getDatabase, ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB_zOJiXH5ZSHs4miirkF4p7Fc6NUDuNiY",
@@ -89,39 +142,32 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // --- Section Switch ---
     window.showSection = function (id) {
       document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
       document.getElementById(id).classList.add("active");
     };
 
-    // --- Admin Login ---
-    const adminCodeValue = "6457";
+    if (!localStorage.getItem("adminCode")) localStorage.setItem("adminCode", "6457");
 
     window.adminLogin = function () {
       const inputCode = document.getElementById("adminCode").value.trim();
       const msg = document.getElementById("loginMsg");
+      const savedCode = localStorage.getItem("adminCode");
 
-      if (inputCode === adminCodeValue) {
+      if (inputCode === savedCode) {
         msg.textContent = "✅ Login Successful!";
         msg.style.color = "green";
-        document.getElementById("loginBtn").classList.add("hidden");
-        document.getElementById("logoutBtn").classList.remove("hidden");
-        document.getElementById("studentBtn").classList.remove("hidden");
-        document.getElementById("resultBtn").classList.remove("hidden");
+        ["loginBtn","studentBtn","resultBtn","logoutBtn","studentListBtn","changeCodeBtn","exitListBtn"].forEach(id => document.getElementById(id).classList.toggle("hidden"));
         showSection("studentSection");
+        loadRollNumbers();
       } else {
         msg.textContent = "❌ Wrong Code!";
         msg.style.color = "red";
       }
     };
 
-    // --- Admin Logout ---
     window.adminLogout = function () {
-      document.getElementById("loginBtn").classList.remove("hidden");
-      document.getElementById("logoutBtn").classList.add("hidden");
-      document.getElementById("studentBtn").classList.add("hidden");
-      document.getElementById("resultBtn").classList.add("hidden");
+      ["loginBtn","studentBtn","resultBtn","logoutBtn","studentListBtn","changeCodeBtn","exitListBtn"].forEach(id => document.getElementById(id).classList.toggle("hidden"));
       showSection("resultSection");
       alert("Logged out successfully!");
     };
@@ -131,16 +177,91 @@
       const name = document.getElementById("name").value.trim();
       const roll = document.getElementById("roll").value.trim();
       const admission = document.getElementById("admission").value;
+      const category = document.getElementById("category").value;
       const msg = document.getElementById("stdMsg");
 
-      if (!name || !roll) {
+      if (!name || !roll || !category) {
         msg.textContent = "⚠ Please fill all fields!";
         return;
       }
 
-      set(ref(db, "students/" + roll), { name, roll, admission })
-        .then(() => msg.textContent = "✅ Student Added Successfully!")
+      set(ref(db, "students/" + roll), { name, roll, admission, category })
+        .then(() => {
+          msg.textContent = "✅ Student Added Successfully!";
+          loadRollNumbers();
+        })
         .catch(err => msg.textContent = "❌ Error: " + err.message);
+    };
+
+    // --- Exit Student ---
+    window.exitStudent = function () {
+      const roll = document.getElementById("exitRoll").value.trim();
+      const date = document.getElementById("exitDate").value;
+      const reason = document.getElementById("exitReason").value.trim();
+      const msg = document.getElementById("exitMsg");
+
+      if (!roll || !date || !reason) {
+        msg.textContent = "⚠ Please fill all fields!";
+        msg.style.color = "red";
+        return;
+      }
+
+      set(ref(db, "exited/" + roll), { roll, date, reason })
+        .then(() => {
+          remove(ref(db, "students/" + roll));
+          remove(ref(db, "results/" + roll));
+          msg.textContent = "✅ Student Exited & Removed Successfully!";
+          msg.style.color = "green";
+        })
+        .catch(err => msg.textContent = "❌ Error: " + err.message);
+    };
+
+    // --- Student List ---
+    window.loadStudentList = function () {
+      const table = document.getElementById("studentTable");
+      const dbRef = ref(db);
+      get(child(dbRef, "students")).then(snapshot => {
+        table.innerHTML = "";
+        if (snapshot.exists()) {
+          snapshot.forEach(childSnap => {
+            const s = childSnap.val();
+            table.innerHTML += `<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.category || "-"}</td><td>${s.admission || "-"}</td></tr>`;
+          });
+        } else table.innerHTML = "<tr><td colspan='4'>No Students Found</td></tr>";
+      });
+    };
+
+    // --- Exit List ---
+    window.loadExitList = function () {
+      const table = document.getElementById("exitTable");
+      const dbRef = ref(db);
+      get(child(dbRef, "exited")).then(snapshot => {
+        table.innerHTML = "";
+        if (snapshot.exists()) {
+          snapshot.forEach(childSnap => {
+            const s = childSnap.val();
+            table.innerHTML += `<tr><td>${s.roll}</td><td>${s.date}</td><td>${s.reason}</td></tr>`;
+          });
+        } else table.innerHTML = "<tr><td colspan='3'>No Exit Students Found</td></tr>";
+      });
+    };
+
+    // --- Load Roll Numbers ---
+    window.loadRollNumbers = function () {
+      const select = document.getElementById("rRoll");
+      select.innerHTML = "";
+      const dbRef = ref(db);
+      get(child(dbRef, "students")).then(snapshot => {
+        if (snapshot.exists()) {
+          select.innerHTML = "<option value=''>Select Roll Number</option>";
+          snapshot.forEach(childSnap => {
+            const s = childSnap.val();
+            select.innerHTML += `<option value='${s.roll}'>${s.roll} - ${s.name}</option>`;
+          });
+        } else {
+          select.innerHTML = "<option>No Students Found</option>";
+        }
+      });
     };
 
     // --- Add Result ---
@@ -171,7 +292,24 @@
       }).then(() => msg.textContent = "✅ Result Added Successfully!");
     };
 
-    // --- Check Result (for Parents) ---
+    // --- Change Admin Code ---
+    window.changeAdminCode = function () {
+      const oldCode = document.getElementById("oldCode").value.trim();
+      const newCode = document.getElementById("newCode").value.trim();
+      const msg = document.getElementById("codeMsg");
+      const savedCode = localStorage.getItem("adminCode");
+
+      if (oldCode === savedCode && newCode) {
+        localStorage.setItem("adminCode", newCode);
+        msg.textContent = "✅ Admin Code Changed Successfully!";
+        msg.style.color = "green";
+      } else {
+        msg.textContent = "❌ Wrong old code or empty new code!";
+        msg.style.color = "red";
+      }
+    };
+
+    // --- Check Result ---
     window.checkResult = function () {
       const roll = document.getElementById("searchRoll").value.trim();
       const output = document.getElementById("resultOutput");
@@ -180,6 +318,9 @@
       get(child(dbRef, "results/" + roll)).then(snapshot => {
         if (snapshot.exists()) {
           const d = snapshot.val();
+          const totalObt = Number(d.namazObt || 0) + Number(d.quranObt || 0) + Number(d.kalmaObt || 0);
+          const totalMax = Number(d.namazTotal || 0) + Number(d.quranTotal || 0) + Number(d.kalmaTotal || 0);
+
           output.innerHTML = `
             <h3>${d.name} (Roll: ${d.roll})</h3>
             <p><b>Month:</b> ${d.month}</p>
@@ -187,6 +328,8 @@
             <p>📖 Quran: ${d.quranObt}/${d.quranTotal}</p>
             <p>☪ Kalma: ${d.kalmaObt}/${d.kalmaTotal}</p>
             <p>📅 Attendance: ${d.attendance}%</p>
+            <hr>
+            <p><b>Total Marks:</b> ${totalObt}/${totalMax}</p>
           `;
         } else {
           output.innerHTML = "❌ No record found!";
