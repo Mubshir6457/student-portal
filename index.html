@@ -1,375 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Faizan-e-Raza Madarsa</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faizan-e-Raza Madarsa Result Portal</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5fff5;
-      color: #222;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: linear-gradient(to right, #228b22, #d4af37);
-      color: white;
-      text-align: center;
-      padding: 1rem;
-      font-size: 1.4rem;
-      font-weight: bold;
-    }
-    nav {
-      display: flex;
-      justify-content: center;
-      background: #e8f5e9;
-      border-bottom: 2px solid #c5e1a5;
-      flex-wrap: wrap;
-    }
-    nav button {
-      margin: 5px;
-      padding: 10px 18px;
-      border: none;
-      background: #2e7d32;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    nav button:hover {
-      background: #1b5e20;
-    }
-    section {
-      display: none;
-      padding: 20px;
-    }
+    body { font-family: Arial, sans-serif; background: #f5fff5; margin: 0; padding: 0; }
+    header { background: linear-gradient(to right, #228b22, #d4af37); color: white; text-align: center; padding: 1rem; font-size: 1.4rem; font-weight: bold; }
+    nav { display: flex; justify-content: center; background: #e8f5e9; border-bottom: 2px solid #c5e1a5; flex-wrap: wrap; }
+    nav button { margin: 5px; padding: 10px 18px; border: none; background: #2e7d32; color: white; border-radius: 5px; cursor: pointer; }
+    nav button:hover { background: #1b5e20; }
+    section { display: none; padding: 20px; }
     .active { display: block; }
-    .input-group { margin-bottom: 10px; }
-    input, select {
-      width: 100%;
-      padding: 8px;
-      margin-top: 4px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
-    }
-    th { background: #c8e6c9; }
     .hidden { display: none; }
-    .btn {
-      background: #388e3c;
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+    input, select { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; }
+    .btn { background: #388e3c; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; margin-top: 5px; }
     .btn:hover { background: #2e7d32; }
   </style>
 </head>
 <body>
-  <header>🕌 Faizan-e-Raza Madarsa System</header>
+  <header>🕌 Faizan-e-Raza Madarsa Result Portal</header>
 
   <nav>
-    <button onclick="showSection('resultSection')">Result Checking</button>
+    <button onclick="showSection('resultSection')">Check Result</button>
     <button id="loginBtn" onclick="showSection('loginSection')">Admin Login</button>
-    <button id="numbersBtn" class="hidden" onclick="showSection('numbersSection')">Numbers Management</button>
-    <button id="studentsBtn" class="hidden" onclick="showSection('studentsSection')">Student Management</button>
-    <button id="listBtn" class="hidden" onclick="showSection('listSection')">All Students List</button>
-    <button id="settingsBtn" class="hidden" onclick="showSection('settingsSection')">Admin Settings</button>
+    <button id="studentBtn" class="hidden" onclick="showSection('studentSection')">Add Student</button>
+    <button id="resultBtn" class="hidden" onclick="showSection('addResultSection')">Add Result</button>
     <button id="logoutBtn" class="hidden" onclick="adminLogout()">Logout</button>
   </nav>
 
-  <!-- Result Checking -->
+  <!-- 🔹 Result Check -->
   <section id="resultSection" class="active">
-    <h2>Result Checking</h2>
-    <div class="input-group">
-      <label>Enter Roll Number:</label>
-      <input type="text" id="searchRoll" />
-    </div>
-    <button class="btn" onclick="checkResult()">Check Result</button>
+    <h2>Check Student Result</h2>
+    <input type="text" id="searchRoll" placeholder="Enter Roll Number">
+    <button class="btn" onclick="checkResult()">Check</button>
     <div id="resultOutput"></div>
   </section>
 
-  <!-- Admin Login -->
+  <!-- 🔹 Admin Login -->
   <section id="loginSection">
     <h2>Admin Login</h2>
-    <div class="input-group">
-      <label>Enter Admin Code:</label>
-      <input type="password" id="adminCode" />
-    </div>
+    <input type="password" id="adminCode" placeholder="Enter Admin Code">
     <button class="btn" onclick="adminLogin()">Login</button>
     <p id="loginMsg"></p>
   </section>
 
-  <!-- Numbers Management -->
-  <section id="numbersSection">
-    <h2>Numbers Management</h2>
-    <div class="input-group">
-      <label>Select Student (Roll No)</label>
-      <select id="studentSelect"></select>
-    </div>
-    <div class="input-group">
-      <label>Month</label>
-      <input type="text" id="month" />
-    </div>
-    <div class="input-group">
-      <label>Namaz Total / Obtained</label>
-      <input type="number" id="namazTotal" placeholder="Total" />
-      <input type="number" id="namazObtained" placeholder="Obtained" oninput="calculateTotals()" />
-    </div>
-    <div class="input-group">
-      <label>Quran Total / Obtained</label>
-      <input type="number" id="quranTotal" placeholder="Total" />
-      <input type="number" id="quranObtained" placeholder="Obtained" oninput="calculateTotals()" />
-    </div>
-    <div class="input-group">
-      <label>Kalma Total / Obtained</label>
-      <input type="number" id="kalmaTotal" placeholder="Total" />
-      <input type="number" id="kalmaObtained" placeholder="Obtained" oninput="calculateTotals()" />
-    </div>
-    <div class="input-group">
-      <label><b>Total Marks (Auto Calculated)</b></label>
-      <input type="text" id="grandTotal" readonly placeholder="Total Marks" />
-      <input type="text" id="grandObtained" readonly placeholder="Obtained Marks" />
-    </div>
-    <div class="input-group">
-      <label>Attendance (%)</label>
-      <input type="number" id="attendance" />
-    </div>
-    <button class="btn" onclick="saveNumbers()">Save Numbers</button>
-    <p id="numMsg"></p>
-  </section>
-
-  <!-- Student Management -->
-  <section id="studentsSection">
-    <h2>Student Management</h2>
-    <div class="input-group">
-      <label>Name</label>
-      <input type="text" id="name" />
-    </div>
-    <div class="input-group">
-      <label>Roll No</label>
-      <input type="text" id="roll" />
-    </div>
-    <div class="input-group">
-      <label>Date of Admission</label>
-      <input type="date" id="admission" />
-    </div>
+  <!-- 🔹 Add Student -->
+  <section id="studentSection">
+    <h2>Add Student</h2>
+    <input type="text" id="name" placeholder="Student Name">
+    <input type="text" id="roll" placeholder="Roll Number">
+    <input type="date" id="admission" placeholder="Admission Date">
     <button class="btn" onclick="addStudent()">Add Student</button>
-    <div class="input-group">
-      <label>Exit Roll No</label>
-      <input type="text" id="exitRoll" />
-    </div>
-    <div class="input-group">
-      <label>Exit Reason</label>
-      <input type="text" id="exitReason" />
-    </div>
-    <div class="input-group">
-      <label>Date of Exit</label>
-      <input type="date" id="exitDate" />
-    </div>
-    <button class="btn" onclick="exitStudent()">Exit Student</button>
     <p id="stdMsg"></p>
   </section>
 
-  <!-- All Students -->
-  <section id="listSection">
-    <h2>All Students List</h2>
-    <table id="studentTable">
-      <tr><th>Name</th><th>Roll No</th><th>Admission</th><th>Status</th></tr>
-    </table>
+  <!-- 🔹 Add Result -->
+  <section id="addResultSection">
+    <h2>Add Result</h2>
+    <input type="text" id="rRoll" placeholder="Roll Number">
+    <input type="text" id="rName" placeholder="Name">
+    <input type="text" id="month" placeholder="Month (e.g. October)">
+    <input type="number" id="namazObt" placeholder="Namaz Obtained">
+    <input type="number" id="namazTotal" placeholder="Namaz Total">
+    <input type="number" id="quranObt" placeholder="Quran Obtained">
+    <input type="number" id="quranTotal" placeholder="Quran Total">
+    <input type="number" id="kalmaObt" placeholder="Kalma Obtained">
+    <input type="number" id="kalmaTotal" placeholder="Kalma Total">
+    <input type="number" id="attendance" placeholder="Attendance (%)">
+    <button class="btn" onclick="addResult()">Add Result</button>
+    <p id="resMsg"></p>
   </section>
 
-  <!-- Admin Settings -->
-  <section id="settingsSection">
-    <h2>Admin Settings</h2>
-    <div class="input-group">
-      <label>Current Admin Code:</label>
-      <input type="password" id="oldCode" />
-    </div>
-    <div class="input-group">
-      <label>New Admin Code:</label>
-      <input type="password" id="newCode" />
-    </div>
-    <button class="btn" onclick="changeAdminCode()">Change Code</button>
-    <p id="codeMsg"></p>
-  </section>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-<script>
-let adminAccess = false;
-let adminCode = localStorage.getItem("adminCode") || "6457";
+    const firebaseConfig = {
+      apiKey: "AIzaSyB_zOJiXH5ZSHs4miirkF4p7Fc6NUDuNiY",
+      authDomain: "faizan-e-raza-madarsa-8c743.firebaseapp.com",
+      databaseURL: "https://faizan-e-raza-madarsa-8c743-default-rtdb.firebaseio.com",
+      projectId: "faizan-e-raza-madarsa-8c743",
+      storageBucket: "faizan-e-raza-madarsa-8c743.firebasestorage.app",
+      messagingSenderId: "659467130617",
+      appId: "1:659467130617:web:9ed42e7bb8e3eea5917428"
+    };
 
-function showSection(id) {
-  document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-function adminLogin() {
-  const code = document.getElementById("adminCode").value.trim();
-  const msg = document.getElementById("loginMsg");
+    // --- Section Switch ---
+    window.showSection = function (id) {
+      document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    };
 
-  if (code === adminCode) {
-    adminAccess = true;
-    msg.textContent = "✅ Login Successful!";
-    msg.style.color = "green";
+    // --- Admin Login ---
+    const adminCodeValue = "6457";
 
-    document.getElementById("numbersBtn").classList.remove("hidden");
-    document.getElementById("studentsBtn").classList.remove("hidden");
-    document.getElementById("listBtn").classList.remove("hidden");
-    document.getElementById("settingsBtn").classList.remove("hidden");
-    document.getElementById("logoutBtn").classList.remove("hidden");
-    document.getElementById("loginBtn").classList.add("hidden");
+    window.adminLogin = function () {
+      const inputCode = document.getElementById("adminCode").value.trim();
+      const msg = document.getElementById("loginMsg");
 
-    showSection("studentsSection");
-    refreshStudentDropdown();
-    loadStudentsTable();
-  } else {
-    msg.textContent = "❌ Wrong Code!";
-    msg.style.color = "red";
-  }
-}
+      if (inputCode === adminCodeValue) {
+        msg.textContent = "✅ Login Successful!";
+        msg.style.color = "green";
+        document.getElementById("loginBtn").classList.add("hidden");
+        document.getElementById("logoutBtn").classList.remove("hidden");
+        document.getElementById("studentBtn").classList.remove("hidden");
+        document.getElementById("resultBtn").classList.remove("hidden");
+        showSection("studentSection");
+      } else {
+        msg.textContent = "❌ Wrong Code!";
+        msg.style.color = "red";
+      }
+    };
 
-function adminLogout() {
-  adminAccess = false;
-  showSection("resultSection");
-  ["numbersBtn","studentsBtn","listBtn","settingsBtn","logoutBtn"].forEach(id => {
-    document.getElementById(id).classList.add("hidden");
-  });
-  document.getElementById("loginBtn").classList.remove("hidden");
-  alert("Logged out successfully!");
-}
+    // --- Admin Logout ---
+    window.adminLogout = function () {
+      document.getElementById("loginBtn").classList.remove("hidden");
+      document.getElementById("logoutBtn").classList.add("hidden");
+      document.getElementById("studentBtn").classList.add("hidden");
+      document.getElementById("resultBtn").classList.add("hidden");
+      showSection("resultSection");
+      alert("Logged out successfully!");
+    };
 
-function changeAdminCode() {
-  const oldCode = document.getElementById("oldCode").value;
-  const newCode = document.getElementById("newCode").value;
-  if (oldCode === adminCode && newCode.length >= 3) {
-    adminCode = newCode;
-    localStorage.setItem("adminCode", newCode);
-    document.getElementById("codeMsg").textContent = "✅ Code changed successfully!";
-  } else {
-    document.getElementById("codeMsg").textContent = "❌ Incorrect old code or invalid new code!";
-  }
-}
+    // --- Add Student ---
+    window.addStudent = function () {
+      const name = document.getElementById("name").value.trim();
+      const roll = document.getElementById("roll").value.trim();
+      const admission = document.getElementById("admission").value;
+      const msg = document.getElementById("stdMsg");
 
-function addStudent() {
-  let students = JSON.parse(localStorage.getItem("students")) || [];
-  const student = {
-    name: document.getElementById("name").value,
-    roll: document.getElementById("roll").value,
-    admission: document.getElementById("admission").value,
-    status: "Active"
-  };
-  students.push(student);
-  localStorage.setItem("students", JSON.stringify(students));
-  document.getElementById("stdMsg").textContent = "✅ Student Added!";
-  ["name","roll","admission"].forEach(id => document.getElementById(id).value = "");
-  refreshStudentDropdown();
-  loadStudentsTable();
-}
+      if (!name || !roll) {
+        msg.textContent = "⚠ Please fill all fields!";
+        return;
+      }
 
-function exitStudent() {
-  const roll = document.getElementById("exitRoll").value;
-  let students = JSON.parse(localStorage.getItem("students")) || [];
-  students = students.map(s => {
-    if (s.roll === roll) {
-      s.status = "Exited";
-      s.exitDate = document.getElementById("exitDate").value;
-      s.reason = document.getElementById("exitReason").value;
-    }
-    return s;
-  });
-  localStorage.setItem("students", JSON.stringify(students));
-  document.getElementById("stdMsg").textContent = "✅ Student Exited!";
-  ["exitRoll","exitReason","exitDate"].forEach(id => document.getElementById(id).value = "");
-  loadStudentsTable();
-}
+      set(ref(db, "students/" + roll), { name, roll, admission })
+        .then(() => msg.textContent = "✅ Student Added Successfully!")
+        .catch(err => msg.textContent = "❌ Error: " + err.message);
+    };
 
-function refreshStudentDropdown() {
-  const dropdown = document.getElementById("studentSelect");
-  dropdown.innerHTML = "";
-  const students = JSON.parse(localStorage.getItem("students")) || [];
-  students.filter(s => s.status === "Active").forEach(s => {
-    const opt = document.createElement("option");
-    opt.value = s.roll;
-    opt.textContent = `${s.roll} - ${s.name}`;
-    dropdown.appendChild(opt);
-  });
-}
+    // --- Add Result ---
+    window.addResult = function () {
+      const roll = document.getElementById("rRoll").value.trim();
+      const name = document.getElementById("rName").value.trim();
+      const month = document.getElementById("month").value.trim();
+      const namazObt = document.getElementById("namazObt").value;
+      const namazTotal = document.getElementById("namazTotal").value;
+      const quranObt = document.getElementById("quranObt").value;
+      const quranTotal = document.getElementById("quranTotal").value;
+      const kalmaObt = document.getElementById("kalmaObt").value;
+      const kalmaTotal = document.getElementById("kalmaTotal").value;
+      const attendance = document.getElementById("attendance").value;
+      const msg = document.getElementById("resMsg");
 
-function calculateTotals() {
-  const nt = +document.getElementById("namazTotal").value || 0;
-  const no = +document.getElementById("namazObtained").value || 0;
-  const qt = +document.getElementById("quranTotal").value || 0;
-  const qo = +document.getElementById("quranObtained").value || 0;
-  const kt = +document.getElementById("kalmaTotal").value || 0;
-  const ko = +document.getElementById("kalmaObtained").value || 0;
-  document.getElementById("grandTotal").value = nt + qt + kt;
-  document.getElementById("grandObtained").value = no + qo + ko;
-}
+      if (!roll || !name || !month) {
+        msg.textContent = "⚠ Please fill all main fields!";
+        return;
+      }
 
-function saveNumbers() {
-  const roll = document.getElementById("studentSelect").value;
-  let results = JSON.parse(localStorage.getItem("results")) || [];
-  const data = {
-    roll,
-    month: document.getElementById("month").value,
-    namazTotal: document.getElementById("namazTotal").value,
-    namazObt: document.getElementById("namazObtained").value,
-    quranTotal: document.getElementById("quranTotal").value,
-    quranObt: document.getElementById("quranObtained").value,
-    kalmaTotal: document.getElementById("kalmaTotal").value,
-    kalmaObt: document.getElementById("kalmaObtained").value,
-    attendance: document.getElementById("attendance").value,
-    grandTotal: document.getElementById("grandTotal").value,
-    grandObt: document.getElementById("grandObtained").value
-  };
-  results = results.filter(r => !(r.roll === roll && r.month === data.month));
-  results.push(data);
-  localStorage.setItem("results", JSON.stringify(results));
-  document.getElementById("numMsg").textContent = "✅ Numbers Saved!";
-  ["month","namazTotal","namazObtained","quranTotal","quranObtained","kalmaTotal","kalmaObtained","attendance","grandTotal","grandObtained"].forEach(id => document.getElementById(id).value="");
-}
+      set(ref(db, "results/" + roll), {
+        roll, name, month,
+        namazObt, namazTotal,
+        quranObt, quranTotal,
+        kalmaObt, kalmaTotal,
+        attendance
+      }).then(() => msg.textContent = "✅ Result Added Successfully!");
+    };
 
-function checkResult() {
-  const roll = document.getElementById("searchRoll").value.trim();
-  const results = JSON.parse(localStorage.getItem("results")) || [];
-  const students = JSON.parse(localStorage.getItem("students")) || [];
-  const student = students.find(s => s.roll === roll);
-  const res = results.filter(r => r.roll === roll);
-  let output = "";
-  if (student) {
-    output += `<h3>${student.name} (Roll ${student.roll})</h3>`;
-    if (res.length > 0) {
-      res.forEach(r => {
-        output += `<p><b>Month:</b> ${r.month}<br>
-        Namaz: ${r.namazObt}/${r.namazTotal}<br>
-        Quran: ${r.quranObt}/${r.quranTotal}<br>
-        Kalma: ${r.kalmaObt}/${r.kalmaTotal}<br>
-        <b>Total:</b> ${r.grandObt}/${r.grandTotal}<br>
-        Attendance: ${r.attendance}%</p><hr>`;
+    // --- Check Result (for Parents) ---
+    window.checkResult = function () {
+      const roll = document.getElementById("searchRoll").value.trim();
+      const output = document.getElementById("resultOutput");
+      const dbRef = ref(db);
+
+      get(child(dbRef, "results/" + roll)).then(snapshot => {
+        if (snapshot.exists()) {
+          const d = snapshot.val();
+          output.innerHTML = `
+            <h3>${d.name} (Roll: ${d.roll})</h3>
+            <p><b>Month:</b> ${d.month}</p>
+            <p>🕌 Namaz: ${d.namazObt}/${d.namazTotal}</p>
+            <p>📖 Quran: ${d.quranObt}/${d.quranTotal}</p>
+            <p>☪ Kalma: ${d.kalmaObt}/${d.kalmaTotal}</p>
+            <p>📅 Attendance: ${d.attendance}%</p>
+          `;
+        } else {
+          output.innerHTML = "❌ No record found!";
+        }
       });
-    } else output += "<p>No results found.</p>";
-  } else output = "<p>Student not found.</p>";
-  document.getElementById("resultOutput").innerHTML = output;
-}
-
-function loadStudentsTable() {
-  const table = document.getElementById("studentTable");
-  const students = JSON.parse(localStorage.getItem("students")) || [];
-  table.innerHTML = "<tr><th>Name</th><th>Roll No</th><th>Admission</th><th>Status</th></tr>";
-  students.forEach(s => {
-    table.innerHTML += `<tr><td>${s.name}</td><td>${s.roll}</td><td>${s.admission}</td><td>${s.status}</td></tr>`;
-  });
-}
-</script>
+    };
+  </script>
 </body>
 </html>
