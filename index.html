@@ -5,49 +5,256 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Faizan-e-Raza Madarsa Result Portal</title>
 <style>
-body { font-family: Arial, sans-serif; background:#f5fff5; margin:0; padding:0; }
-header { background:linear-gradient(to right,#228b22,#d4af37); color:white; text-align:center; padding:1rem; font-size:1.4rem; font-weight:bold; }
-nav { display:flex; justify-content:center; flex-wrap:wrap; background:#e8f5e9; border-bottom:2px solid #c5e1a5; }
-nav button { margin:5px; padding:10px 18px; border:none; background:#2e7d32; color:white; border-radius:5px; cursor:pointer; }
-nav button:hover { background:#1b5e20; }
-section { display:none; padding:20px; }
-.active { display:block; }
-.hidden { display:none; }
-input, select { width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:5px; }
-.btn { background:#388e3c; color:white; border:none; padding:8px 14px; border-radius:5px; cursor:pointer; margin-top:5px; }
-.btn:hover { background:#2e7d32; }
-.btn-info { background:#1976d2; color:white; border:none; padding:8px 14px; border-radius:5px; cursor:pointer; margin-top:5px; margin-left:10px; }
-.btn-info:hover { background:#1565c0; }
-.btn-danger { background:#d32f2f; color:white; border:none; padding:8px 14px; border-radius:5px; cursor:pointer; margin-top:5px; margin-left:10px; }
-.btn-danger:hover { background:#b71c1c; }
-.btn-warning { background:#ff9800; color:white; border:none; padding:8px 14px; border-radius:5px; cursor:pointer; margin-top:5px; margin-left:10px; }
-.btn-warning:hover { background:#f57c00; }
-table { width:100%; border-collapse:collapse; margin-top:10px; }
-th,td { border:1px solid #ccc; padding:8px; text-align:center; }
-th { background:#c8e6c9; }
-.result-card { background:white; border-radius:8px; padding:15px; margin-top:15px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-.position-1st { color: #d4af37; font-weight: bold; font-size: 1.2em; }
-.position-2nd { color: #228b22; font-weight: bold; }
-.position-3rd { color: #2e7d32; font-weight: bold; }
-.position-pass { color: #666; }
-.absent { color: #ff4444; font-weight: bold; }
-.flower { position: fixed; font-size: 20px; opacity: 0; z-index: 1000; pointer-events: none; }
+:root {
+  --primary: #2e7d32;
+  --primary-dark: #1b5e20;
+  --primary-light: #4caf50;
+  --secondary: #d4af37;
+  --accent: #1976d2;
+  --danger: #d32f2f;
+  --warning: #ff9800;
+  --success: #388e3c;
+  --light-bg: #f8fff8;
+  --card-bg: #ffffff;
+  --text: #333333;
+  --text-light: #666666;
+  --border: #e0e0e0;
+  --shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body { 
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+  background: var(--light-bg); 
+  margin: 0; 
+  padding: 0; 
+  color: var(--text);
+  line-height: 1.6;
+}
+
+header { 
+  background: linear-gradient(to right, var(--primary), var(--secondary)); 
+  color: white; 
+  text-align: center; 
+  padding: 1rem; 
+  font-size: 1.4rem; 
+  font-weight: bold;
+  box-shadow: var(--shadow);
+}
+
+nav { 
+  display: flex; 
+  justify-content: center; 
+  flex-wrap: wrap; 
+  background: var(--card-bg); 
+  border-bottom: 2px solid var(--border);
+  padding: 0.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
+}
+
+nav button { 
+  margin: 5px; 
+  padding: 10px 18px; 
+  border: none; 
+  background: var(--primary); 
+  color: white; 
+  border-radius: 5px; 
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 120px;
+  max-width: 200px;
+}
+
+nav button:hover { 
+  background: var(--primary-dark); 
+  transform: translateY(-2px);
+}
+
+section { 
+  display: none; 
+  padding: 20px; 
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.active { 
+  display: block; 
+}
+
+.hidden { 
+  display: none; 
+}
+
+input, select { 
+  width: 100%; 
+  padding: 12px; 
+  margin-top: 8px; 
+  border: 1px solid var(--border); 
+  border-radius: 5px; 
+  font-size: 1rem;
+  transition: border 0.3s;
+}
+
+input:focus, select:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+}
+
+.btn { 
+  background: var(--success); 
+  color: white; 
+  border: none; 
+  padding: 12px 18px; 
+  border-radius: 5px; 
+  cursor: pointer; 
+  margin-top: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn:hover { 
+  background: var(--primary-dark); 
+  transform: translateY(-2px);
+}
+
+.btn-info { 
+  background: var(--accent); 
+  color: white; 
+  border: none; 
+  padding: 8px 14px; 
+  border-radius: 5px; 
+  cursor: pointer; 
+  margin-top: 5px; 
+  margin-left: 10px; 
+}
+
+.btn-info:hover { 
+  background: #1565c0; 
+}
+
+.btn-danger { 
+  background: var(--danger); 
+  color: white; 
+  border: none; 
+  padding: 8px 14px; 
+  border-radius: 5px; 
+  cursor: pointer; 
+  margin-top: 5px; 
+  margin-left: 10px; 
+}
+
+.btn-danger:hover { 
+  background: #b71c1c; 
+}
+
+.btn-warning { 
+  background: var(--warning); 
+  color: white; 
+  border: none; 
+  padding: 8px 14px; 
+  border-radius: 5px; 
+  cursor: pointer; 
+  margin-top: 5px; 
+  margin-left: 10px; 
+}
+
+.btn-warning:hover { 
+  background: #f57c00; 
+}
+
+table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  margin-top: 15px;
+  box-shadow: var(--shadow);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th, td { 
+  border: 1px solid var(--border); 
+  padding: 12px; 
+  text-align: center; 
+}
+
+th { 
+  background: #e8f5e9; 
+  font-weight: 600;
+}
+
+.result-card { 
+  background: var(--card-bg); 
+  border-radius: 8px; 
+  padding: 20px; 
+  margin-top: 20px; 
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--primary);
+}
+
+.position-1st { 
+  color: var(--secondary); 
+  font-weight: bold; 
+  font-size: 1.2em; 
+}
+
+.position-2nd { 
+  color: var(--primary); 
+  font-weight: bold; 
+}
+
+.position-3rd { 
+  color: var(--primary-dark); 
+  font-weight: bold; 
+}
+
+.position-pass { 
+  color: var(--text-light); 
+}
+
+.absent { 
+  color: var(--danger); 
+  font-weight: bold; 
+}
+
+.flower { 
+  position: fixed; 
+  font-size: 20px; 
+  opacity: 0; 
+  z-index: 1000; 
+  pointer-events: none; 
+}
+
 @keyframes fall {
   0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
   100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
 }
+
 .confirmation-dialog {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   background: white;
-  padding: 20px;
+  padding: 25px;
   border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   z-index: 2000;
   text-align: center;
+  max-width: 90%;
+  width: 400px;
 }
+
 .overlay {
   position: fixed;
   top: 0;
@@ -57,44 +264,205 @@ th { background:#c8e6c9; }
   background: rgba(0,0,0,0.5);
   z-index: 1999;
 }
+
 .attendance-inputs {
   display: flex;
   gap: 10px;
   margin-bottom: 15px;
+  flex-wrap: wrap;
 }
+
 .attendance-inputs input {
   flex: 1;
+  min-width: 150px;
 }
+
 .fine-calc { 
   background: #fff3cd; 
-  padding: 10px; 
+  padding: 15px; 
   border-radius: 5px; 
-  margin: 10px 0; 
+  margin: 15px 0; 
   border: 1px solid #ffeaa7;
 }
+
 .edit-form {
   background: #e8f5e9;
-  padding: 15px;
+  padding: 20px;
   border-radius: 8px;
-  margin: 15px 0;
+  margin: 20px 0;
   border: 1px solid #c8e6c9;
 }
+
 .currency {
   font-weight: bold;
-  color: #2e7d32;
+  color: var(--primary);
 }
+
 .student-edit-form {
   background: #e3f2fd;
   padding: 20px;
   border-radius: 8px;
   margin: 20px 0;
-  border: 2px solid #1976d2;
+  border: 2px solid var(--accent);
 }
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 15px;
   margin-bottom: 15px;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  header {
+    font-size: 1.2rem;
+    padding: 0.8rem;
+  }
+  
+  nav {
+    padding: 0.3rem;
+  }
+  
+  nav button {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    min-width: 100px;
+  }
+  
+  section {
+    padding: 15px;
+  }
+  
+  table {
+    font-size: 0.85rem;
+  }
+  
+  th, td {
+    padding: 8px 5px;
+  }
+  
+  .btn {
+    padding: 10px 15px;
+    width: 100%;
+    margin: 5px 0;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .attendance-inputs {
+    flex-direction: column;
+  }
+  
+  .confirmation-dialog {
+    width: 90%;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  header {
+    font-size: 1rem;
+  }
+  
+  nav button {
+    min-width: 80px;
+    font-size: 0.75rem;
+    padding: 6px 8px;
+  }
+  
+  table {
+    display: block;
+    overflow-x: auto;
+  }
+  
+  input, select {
+    padding: 10px;
+  }
+}
+
+/* Sequential numbering styles */
+.sequential-number {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+/* Eye-friendly improvements */
+h1, h2, h3 {
+  color: var(--primary-dark);
+  margin-top: 0;
+}
+
+p {
+  margin: 10px 0;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* Loading spinner */
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: var(--primary);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+  display: none;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Success/Error messages */
+.message {
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin: 10px 0;
+  font-weight: 500;
+}
+
+.message.success {
+  background: #e8f5e9;
+  color: var(--success);
+  border: 1px solid #c8e6c9;
+}
+
+.message.error {
+  background: #ffebee;
+  color: var(--danger);
+  border: 1px solid #ffcdd2;
+}
+
+.message.info {
+  background: #e3f2fd;
+  color: var(--accent);
+  border: 1px solid #bbdefb;
+}
+
+.roll-warning {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  padding: 10px;
+  border-radius: 5px;
+  margin: 10px 0;
+  color: #856404;
 }
 </style>
 </head>
@@ -167,6 +535,13 @@ th { background:#c8e6c9; }
     <input type="hidden" id="editStudentRoll">
     <div class="form-grid">
       <div>
+        <label>Roll Number</label>
+        <input type="text" id="editStudentNewRoll" placeholder="New Roll Number">
+        <div id="rollWarning" class="roll-warning hidden">
+          ⚠ Changing roll number will update all related records
+        </div>
+      </div>
+      <div>
         <label>Student Name</label>
         <input type="text" id="editStudentName" placeholder="Student Name">
       </div>
@@ -200,6 +575,7 @@ th { background:#c8e6c9; }
   <table>
     <thead>
       <tr>
+        <th>#</th>
         <th>Roll</th>
         <th>Name</th>
         <th>Father</th>
@@ -218,7 +594,16 @@ th { background:#c8e6c9; }
   <h2>Exit Student List</h2>
   <button class="btn" onclick="loadExitList()">Refresh</button>
   <table>
-    <thead><tr><th>Roll</th><th>Name</th><th>Date</th><th>Reason</th><th>Action</th></tr></thead>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Roll</th>
+        <th>Name</th>
+        <th>Date</th>
+        <th>Reason</th>
+        <th>Action</th>
+      </tr>
+    </thead>
     <tbody id="exitStudentsTable"></tbody>
   </table>
 </section>
@@ -286,6 +671,7 @@ th { background:#c8e6c9; }
   <table>
     <thead>
       <tr>
+        <th>#</th>
         <th>Roll</th>
         <th>Name</th>
         <th>Father</th>
@@ -389,12 +775,20 @@ window.loadExitList=()=>{
   get(child(ref(db),"exited")).then(snap=>{
     exitStudentsTable.innerHTML="";
     if(snap.exists()){
+      let count = 1;
       snap.forEach(c=>{
         const s=c.val();
-        exitStudentsTable.innerHTML+=`<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.date}</td><td>${s.reason}</td>
-        <td><button onclick="deleteExitStudent('${s.roll}')">🗑</button></td></tr>`;
+        exitStudentsTable.innerHTML+=`<tr>
+          <td>${count}</td>
+          <td>${s.roll}</td>
+          <td>${s.name}</td>
+          <td>${s.date}</td>
+          <td>${s.reason}</td>
+          <td><button onclick="deleteExitStudent('${s.roll}')">🗑</button></td>
+        </tr>`;
+        count++;
       });
-    } else exitStudentsTable.innerHTML="<tr><td colspan='5'>No Exited Students</td></tr>";
+    } else exitStudentsTable.innerHTML="<tr><td colspan='6'>No Exited Students</td></tr>";
   });
 };
 window.deleteExitStudent=async(roll)=>{await remove(ref(db,"exited/"+roll));loadExitList();};
@@ -404,9 +798,11 @@ window.loadAllStudents=()=>{
   get(child(ref(db),"students")).then(snap=>{
     allStudentsTable.innerHTML="";
     if(snap.exists()){
+      let count = 1;
       snap.forEach(c=>{
         const s=c.val();
         allStudentsTable.innerHTML+=`<tr>
+          <td>${count}</td>
           <td>${s.roll}</td>
           <td>${s.name}</td>
           <td>${s.father}</td>
@@ -418,8 +814,9 @@ window.loadAllStudents=()=>{
             <button class="btn-danger" onclick="deleteStudent('${s.roll}')">🗑 Delete</button>
           </td>
         </tr>`;
+        count++;
       });
-    } else allStudentsTable.innerHTML="<tr><td colspan='7'>No Students</td></tr>";
+    } else allStudentsTable.innerHTML="<tr><td colspan='8'>No Students</td></tr>";
   });
 };
 
@@ -436,11 +833,21 @@ window.editStudent = async (roll) => {
     
     // Fill form with current data
     document.getElementById('editStudentRoll').value = roll;
+    document.getElementById('editStudentNewRoll').value = roll;
     document.getElementById('editStudentName').value = student.name || '';
     document.getElementById('editStudentFather').value = student.father || '';
     document.getElementById('editStudentPhone').value = student.phone || '';
     document.getElementById('editStudentAdmission').value = student.admission || '';
     document.getElementById('editStudentCategory').value = student.category || '';
+    
+    // Show warning when roll number is changed
+    document.getElementById('editStudentNewRoll').addEventListener('input', function() {
+      if(this.value !== roll) {
+        document.getElementById('rollWarning').classList.remove('hidden');
+      } else {
+        document.getElementById('rollWarning').classList.add('hidden');
+      }
+    });
     
     // Scroll to edit form
     document.getElementById('editStudentForm').scrollIntoView({ behavior: 'smooth' });
@@ -449,8 +856,8 @@ window.editStudent = async (roll) => {
 
 // Update Student
 window.updateStudent = async () => {
-  const roll = document.getElementById('editStudentRoll').value;
-  const studentRef = ref(db, "students/" + roll);
+  const oldRoll = document.getElementById('editStudentRoll').value;
+  const newRoll = document.getElementById('editStudentNewRoll').value;
   
   const name = document.getElementById('editStudentName').value;
   const father = document.getElementById('editStudentFather').value;
@@ -458,7 +865,7 @@ window.updateStudent = async () => {
   const admission = document.getElementById('editStudentAdmission').value;
   const category = document.getElementById('editStudentCategory').value;
   
-  if(!name || !father || !category) {
+  if(!name || !father || !category || !newRoll) {
     alert("⚠ Please fill all required fields!");
     return;
   }
@@ -469,11 +876,52 @@ window.updateStudent = async () => {
     phone: phone,
     admission: admission,
     category: category,
-    roll: roll // Keep the same roll number
+    roll: newRoll
   };
   
   try {
-    await update(studentRef, updates);
+    // If roll number is changed, we need to:
+    // 1. Create new student record with new roll
+    // 2. Update all results with new roll
+    // 3. Delete old student record
+    
+    if(oldRoll !== newRoll) {
+      // Check if new roll number already exists
+      const existingStudent = await get(ref(db, "students/" + newRoll));
+      if(existingStudent.exists()) {
+        alert("❌ Roll number already exists! Please use a different roll number.");
+        return;
+      }
+      
+      // Create new student record
+      await set(ref(db, "students/" + newRoll), updates);
+      
+      // Update all results with new roll number
+      const resultsSnap = await get(child(ref(db), "results"));
+      if(resultsSnap.exists()) {
+        const updatePromises = [];
+        resultsSnap.forEach(c => {
+          const result = c.val();
+          if(result.roll === oldRoll) {
+            // Create new result with updated roll
+            const newResult = {...result, roll: newRoll};
+            const newKey = newRoll + "_" + result.month;
+            updatePromises.push(set(ref(db, "results/" + newKey), newResult));
+            // Delete old result
+            updatePromises.push(remove(ref(db, "results/" + c.key)));
+          }
+        });
+        await Promise.all(updatePromises);
+      }
+      
+      // Delete old student record
+      await remove(ref(db, "students/" + oldRoll));
+      
+    } else {
+      // Just update the student record if roll number is same
+      await update(ref(db, "students/" + oldRoll), updates);
+    }
+    
     document.getElementById('editStudentForm').classList.add('hidden');
     loadAllStudents();
     alert("✅ Student information updated successfully!");
@@ -526,10 +974,24 @@ window.loadStudentsForResults=()=>{
   get(child(ref(db),"students")).then(snap=>{
     if(!snap.exists())return resultTableContainer.innerHTML="<p>No Students Found</p>";
     
-    let html=`<table><thead><tr><th>Roll</th><th>Name</th><th>Father</th><th>Namaz</th><th>Kalma</th><th>Nazra</th><th>Present Days</th><th>Auto Fine (<span class="currency">Rs.</span> 10/day)</th><th>Position</th></tr></thead><tbody>`;
+    let html=`<table><thead><tr>
+      <th>#</th>
+      <th>Roll</th>
+      <th>Name</th>
+      <th>Father</th>
+      <th>Namaz</th>
+      <th>Kalma</th>
+      <th>Nazra</th>
+      <th>Present Days</th>
+      <th>Auto Fine (<span class="currency">Rs.</span> 10/day)</th>
+      <th>Position</th>
+    </tr></thead><tbody>`;
+    
+    let count = 1;
     snap.forEach(c=>{
       const s=c.val();
       html+=`<tr>
+        <td>${count}</td>
         <td>${s.roll}</td>
         <td>${s.name}</td>
         <td>${s.father}</td>
@@ -540,6 +1002,7 @@ window.loadStudentsForResults=()=>{
         <td><span id='autoFine${s.roll}'><span class="currency">Rs.</span> 0</span></td>
         <td><select id='p${s.roll}'><option value=''>Select Position</option><option value='1st'>1st Position</option><option value='2nd'>2nd Position</option><option value='3rd'>3rd Position</option><option value='Pass'>Pass</option></select></td>
       </tr>`;
+      count++;
     });
     html+="</tbody></table>";
     resultTableContainer.innerHTML=html;
@@ -602,6 +1065,7 @@ window.loadAllResults=()=>{
   get(child(ref(db),"results")).then(snap=>{
     allResultsTable.innerHTML="";
     if(snap.exists()){
+      let count = 1;
       snap.forEach(c=>{
         const r=c.val();
         const obt=(+r.namazObt||0)+(+r.kalmaObt||0)+(+r.quranObt||0);
@@ -616,6 +1080,7 @@ window.loadAllResults=()=>{
         else if(r.position === "Pass") positionClass = "position-pass";
         
         allResultsTable.innerHTML+=`<tr>
+          <td>${count}</td>
           <td>${r.roll}</td>
           <td>${r.name}</td>
           <td>${r.father}</td>
@@ -629,8 +1094,9 @@ window.loadAllResults=()=>{
             <button class="btn-danger" onclick="deleteResult('${c.key}')">🗑 Delete</button>
           </td>
         </tr>`;
+        count++;
       });
-    } else allResultsTable.innerHTML="<tr><td colspan='9'>No Results Found</td></tr>";
+    } else allResultsTable.innerHTML="<tr><td colspan='10'>No Results Found</td></tr>";
   });
 };
 
