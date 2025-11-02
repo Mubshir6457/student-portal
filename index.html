@@ -173,6 +173,22 @@ input:focus, select:focus {
   background: #f57c00; 
 }
 
+.btn-pay { 
+  background: #4CAF50; 
+  color: white; 
+  border: none; 
+  padding: 8px 14px; 
+  border-radius: 5px; 
+  cursor: pointer; 
+  margin-top: 5px; 
+  margin-left: 10px; 
+  font-weight: bold;
+}
+
+.btn-pay:hover { 
+  background: #388E3C; 
+}
+
 table { 
   width: 100%; 
   border-collapse: collapse; 
@@ -313,6 +329,48 @@ th {
   margin-bottom: 15px;
 }
 
+.result-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.summary-card {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.summary-card h3 {
+  margin-top: 0;
+  color: var(--primary);
+}
+
+.summary-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary-dark);
+}
+
+.admin-view {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: var(--shadow);
+  z-index: 1001;
+  font-size: 0.9rem;
+}
+
+.admin-view.hidden {
+  display: none;
+}
+
 /* Mobile-specific styles */
 @media (max-width: 768px) {
   header {
@@ -359,6 +417,10 @@ th {
   .confirmation-dialog {
     width: 90%;
     padding: 20px;
+  }
+  
+  .result-summary {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -464,11 +526,27 @@ label {
   margin: 10px 0;
   color: #856404;
 }
+
+.fine-paid {
+  color: var(--success);
+  font-weight: bold;
+}
+
+.fine-pending {
+  color: var(--danger);
+  font-weight: bold;
+}
 </style>
 </head>
 <body>
 
 <header>🕌 Faizan-e-Raza Madarsa Result Portal</header>
+
+<!-- Admin View Panel -->
+<div id="adminViewPanel" class="admin-view hidden">
+  <strong>🔐 Admin Mode</strong>
+  <div id="adminViewInfo"></div>
+</div>
 
 <nav>
   <button onclick="showSection('resultSection')">Check Result</button>
@@ -680,6 +758,7 @@ label {
         <th>Attendance</th>
         <th>Position</th>
         <th>Fine</th>
+        <th>Status</th>
         <th>Action</th>
       </tr>
     </thead>
@@ -731,16 +810,28 @@ window.adminLogin=async()=>{
     document.querySelectorAll("#studentBtn,#logoutBtn,#resultBtn,#allResultBtn,#changeCodeBtn,#exitListBtn,#allStudentBtn")
       .forEach(b=>b.classList.remove("hidden"));
     document.getElementById("loginBtn").classList.add("hidden");
+    document.getElementById("adminViewPanel").classList.remove("hidden");
+    updateAdminView();
     loginMsg.textContent="✅ Login Successful!";
     showSection("studentSection");
   } else loginMsg.textContent="❌ Wrong Admin Code!";
 };
+
+// Update Admin View Panel
+function updateAdminView() {
+  const currentTime = new Date().toLocaleTimeString();
+  document.getElementById("adminViewInfo").innerHTML = `
+    <div>Logged in at: ${currentTime}</div>
+    <div>Viewing: ${document.querySelector('section.active h2').textContent}</div>
+  `;
+}
 
 // Logout
 window.adminLogout=()=>{
   document.querySelectorAll("#studentBtn,#logoutBtn,#resultBtn,#allResultBtn,#changeCodeBtn,#exitListBtn,#allStudentBtn")
     .forEach(b=>b.classList.add("hidden"));
   document.getElementById("loginBtn").classList.remove("hidden");
+  document.getElementById("adminViewPanel").classList.add("hidden");
   showSection("resultSection");
 };
 
@@ -1052,6 +1143,7 @@ window.saveAllResults=async()=>{
       attendancePercentage: attendancePercentage,
       position:positionValue,
       fine: autoFine, // Auto calculated fine
+      finePaid: false, // Track if fine is paid
       namazTotal:nT,kalmaTotal:kT,quranTotal:qT
     };
     promises.push(set(ref(db,"results/"+s.roll+"_"+month),d));
@@ -1079,6 +1171,11 @@ window.loadAllResults=()=>{
         else if(r.position === "3rd") positionClass = "position-3rd";
         else if(r.position === "Pass") positionClass = "position-pass";
         
+        // Determine fine status
+        const fineStatus = r.finePaid ? 
+          `<span class="fine-paid">Paid</span>` : 
+          `<span class="fine-pending">Pending</span>`;
+        
         allResultsTable.innerHTML+=`<tr>
           <td>${count}</td>
           <td>${r.roll}</td>
@@ -1089,15 +1186,31 @@ window.loadAllResults=()=>{
           <td>${r.presentDays}/${r.totalWorkingDays} (${r.attendancePercentage}%)</td>
           <td class="${positionClass}">${positionDisplay}</td>
           <td><span class="currency">Rs.</span> ${r.fine||0}</td>
+          <td>${fineStatus}</td>
           <td>
             <button class="btn-info" onclick="editResult('${c.key}')">✏️ Edit</button>
+            <button class="btn-pay" onclick="payFine('${c.key}')">💰 Pay</button>
             <button class="btn-danger" onclick="deleteResult('${c.key}')">🗑 Delete</button>
           </td>
         </tr>`;
         count++;
       });
-    } else allResultsTable.innerHTML="<tr><td colspan='10'>No Results Found</td></tr>";
+    } else allResultsTable.innerHTML="<tr><td colspan='11'>No Results Found</td></tr>";
   });
+};
+
+// Pay Fine function
+window.payFine = async (key) => {
+  if(confirm("Mark this fine as paid? This action cannot be undone.")) {
+    try {
+      const resultRef = ref(db, "results/" + key);
+      await update(resultRef, { finePaid: true });
+      loadAllResults();
+      alert("✅ Fine marked as paid!");
+    } catch (error) {
+      alert("❌ Error updating fine status: " + error.message);
+    }
+  }
 };
 
 // Edit Result
@@ -1335,22 +1448,41 @@ window.checkResult=()=>{
           createFlowers(d.position);
         }
         
+        // Create result summary cards
+        const summaryHTML = `
+          <div class="result-summary">
+            <div class="summary-card">
+              <h3>Namaz</h3>
+              <div class="summary-value">${d.namazObt}/${d.namazTotal}</div>
+            </div>
+            <div class="summary-card">
+              <h3>Kalma</h3>
+              <div class="summary-value">${d.kalmaObt}/${d.kalmaTotal}</div>
+            </div>
+            <div class="summary-card">
+              <h3>Nazra</h3>
+              <div class="summary-value">${d.quranObt}/${d.quranTotal}</div>
+            </div>
+            <div class="summary-card">
+              <h3>Total</h3>
+              <div class="summary-value">${obt}/${total}</div>
+            </div>
+          </div>
+        `;
+        
         resultOutput.innerHTML=`<div class="result-card">
         <h3>${d.name} (${d.roll})</h3>
         <p><b>Father:</b> ${d.father}</p>
         <p><b>Month:</b> ${d.month}</p>
+        ${summaryHTML}
         ${hasMarks ? `
-          <p>Namaz: ${d.namazObt}/${d.namazTotal}</p>
-          <p>Kalma: ${d.kalmaObt}/${d.kalmaTotal}</p>
-          <p>Nazra: ${d.quranObt}/${d.quranTotal}</p>
-          <p>Attendance: ${d.presentDays}/${d.totalWorkingDays} Days (${d.attendancePercentage}%)</p>
+          <p><b>Attendance:</b> ${d.presentDays}/${d.totalWorkingDays} Days (${d.attendancePercentage}%)</p>
           <p><b>Position:</b> <span class="${positionClass}">${positionDisplay}</span></p>
-          <p><b>Fine:</b> <span class="currency">Rs.</span> ${d.fine||0}</p>
-          <p><b>Total Marks:</b> ${obt}/${total}</p>
+          <p><b>Fine:</b> <span class="currency">Rs.</span> ${d.fine||0} ${d.finePaid ? '<span class="fine-paid">(Paid)</span>' : '<span class="fine-pending">(Pending)</span>'}</p>
         ` : `
           <p class="absent"><b>Status: ABSENT</b></p>
-          <p>Attendance: ${d.presentDays}/${d.totalWorkingDays} Days (${d.attendancePercentage}%)</p>
-          <p><b>Fine:</b> <span class="currency">Rs.</span> ${d.fine||0}</p>
+          <p><b>Attendance:</b> ${d.presentDays}/${d.totalWorkingDays} Days (${d.attendancePercentage}%)</p>
+          <p><b>Fine:</b> <span class="currency">Rs.</span> ${d.fine||0} ${d.finePaid ? '<span class="fine-paid">(Paid)</span>' : '<span class="fine-pending">(Pending)</span>'}</p>
         `}
         </div>`;
       } else {
