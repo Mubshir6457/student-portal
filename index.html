@@ -365,6 +365,7 @@ th {
   box-shadow: var(--shadow);
   z-index: 1001;
   font-size: 0.9rem;
+  border-left: 4px solid var(--primary);
 }
 
 .admin-view.hidden {
@@ -421,6 +422,12 @@ th {
   
   .result-summary {
     grid-template-columns: 1fr;
+  }
+  
+  .admin-view {
+    position: static;
+    margin: 10px;
+    text-align: center;
   }
 }
 
@@ -536,6 +543,68 @@ label {
   color: var(--danger);
   font-weight: bold;
 }
+
+/* Roll number grouping */
+.roll-group {
+  margin-bottom: 25px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.roll-header {
+  background: var(--primary);
+  color: white;
+  padding: 12px 15px;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.roll-content {
+  background: white;
+  padding: 15px;
+}
+
+.roll-student-info {
+  background: #f5f5f5;
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+
+.roll-student-info p {
+  margin: 5px 0;
+}
+
+.roll-results-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.roll-results-table th {
+  background: #e8f5e9;
+}
+
+.roll-results-table th, 
+.roll-results-table td {
+  padding: 10px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.no-results {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+.login-time {
+  font-size: 0.8rem;
+  color: var(--primary-dark);
+  margin-top: 5px;
+}
 </style>
 </head>
 <body>
@@ -546,6 +615,7 @@ label {
 <div id="adminViewPanel" class="admin-view hidden">
   <strong>🔐 Admin Mode</strong>
   <div id="adminViewInfo"></div>
+  <div id="adminLoginTime" class="login-time"></div>
 </div>
 
 <nav>
@@ -717,6 +787,7 @@ label {
 <section id="allResultsSection">
   <h2>All Results</h2>
   <button class="btn" onclick="loadAllResults()">Refresh</button>
+  <button class="btn" onclick="loadAllResultsByRoll()">View by Roll Number</button>
   <button class="btn-danger" onclick="showDeleteConfirmation()">🗑 Delete All Results</button>
   
   <!-- Edit Form (Hidden by default) -->
@@ -746,24 +817,32 @@ label {
     <button class="btn-warning" onclick="cancelEdit()">❌ Cancel</button>
   </div>
   
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Roll</th>
-        <th>Name</th>
-        <th>Father</th>
-        <th>Month</th>
-        <th>Total</th>
-        <th>Attendance</th>
-        <th>Position</th>
-        <th>Fine</th>
-        <th>Status</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody id="allResultsTable"></tbody>
-  </table>
+  <!-- Default Results View -->
+  <div id="defaultResultsView">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Roll</th>
+          <th>Name</th>
+          <th>Father</th>
+          <th>Month</th>
+          <th>Total</th>
+          <th>Attendance</th>
+          <th>Position</th>
+          <th>Fine</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="allResultsTable"></tbody>
+    </table>
+  </div>
+  
+  <!-- Roll Number Grouped Results View -->
+  <div id="rollResultsView" class="hidden">
+    <div id="rollResultsContainer"></div>
+  </div>
 </section>
 
 <!-- 🔑 CHANGE ADMIN CODE -->
@@ -795,10 +874,12 @@ const db = getDatabase(app);
 const adminRef = ref(db, "admin/code");
 get(adminRef).then(snap => { if (!snap.exists()) set(adminRef, "6457"); });
 
+
 // Navigation
 window.showSection=id=>{
   document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
+  updateAdminView();
 };
 
 // 🔐 Admin Login
@@ -811,7 +892,9 @@ window.adminLogin=async()=>{
       .forEach(b=>b.classList.remove("hidden"));
     document.getElementById("loginBtn").classList.add("hidden");
     document.getElementById("adminViewPanel").classList.remove("hidden");
-    updateAdminView();
+    
+   
+    
     loginMsg.textContent="✅ Login Successful!";
     showSection("studentSection");
   } else loginMsg.textContent="❌ Wrong Admin Code!";
@@ -820,10 +903,17 @@ window.adminLogin=async()=>{
 // Update Admin View Panel
 function updateAdminView() {
   const currentTime = new Date().toLocaleTimeString();
-  document.getElementById("adminViewInfo").innerHTML = `
-    <div>Logged in at: ${currentTime}</div>
-    <div>Viewing: ${document.querySelector('section.active h2').textContent}</div>
-  `;
+  const currentSection = document.querySelector('section.active h2').textContent;
+  
+  let adminInfoHTML = `<div>Viewing: ${currentSection}</div>`;
+  
+  if (adminLoginTime) {
+    const loginTimeStr = adminLoginTime.toLocaleTimeString();
+    const loginDateStr = adminLoginTime.toLocaleDateString();
+    adminInfoHTML += `<div class="login-time">Logged in: ${loginDateStr} at ${loginTimeStr}</div>`;
+  }
+  
+  document.getElementById("adminViewInfo").innerHTML = adminInfoHTML;
 }
 
 // Logout
@@ -832,6 +922,7 @@ window.adminLogout=()=>{
     .forEach(b=>b.classList.add("hidden"));
   document.getElementById("loginBtn").classList.remove("hidden");
   document.getElementById("adminViewPanel").classList.add("hidden");
+  adminLoginTime = null;
   showSection("resultSection");
 };
 
@@ -1152,8 +1243,11 @@ window.saveAllResults=async()=>{
   resMsg.textContent="✅ All Results Saved!";
 };
 
-// All Results
+// All Results - Default View
 window.loadAllResults=()=>{
+  document.getElementById('defaultResultsView').classList.remove('hidden');
+  document.getElementById('rollResultsView').classList.add('hidden');
+  
   get(child(ref(db),"results")).then(snap=>{
     allResultsTable.innerHTML="";
     if(snap.exists()){
@@ -1196,6 +1290,130 @@ window.loadAllResults=()=>{
         count++;
       });
     } else allResultsTable.innerHTML="<tr><td colspan='11'>No Results Found</td></tr>";
+  });
+};
+
+// All Results - Grouped by Roll Number
+window.loadAllResultsByRoll = () => {
+  document.getElementById('defaultResultsView').classList.add('hidden');
+  document.getElementById('rollResultsView').classList.remove('hidden');
+  
+  get(child(ref(db),"results")).then(snap=>{
+    const rollResultsContainer = document.getElementById('rollResultsContainer');
+    rollResultsContainer.innerHTML = "";
+    
+    if(!snap.exists()) {
+      rollResultsContainer.innerHTML = '<div class="no-results">No Results Found</div>';
+      return;
+    }
+    
+    // Group results by roll number
+    const resultsByRoll = {};
+    
+    snap.forEach(c => {
+      const r = c.val();
+      if (!resultsByRoll[r.roll]) {
+        resultsByRoll[r.roll] = [];
+      }
+      resultsByRoll[r.roll].push({...r, key: c.key});
+    });
+    
+    // Sort roll numbers
+    const sortedRolls = Object.keys(resultsByRoll).sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
+    
+    if (sortedRolls.length === 0) {
+      rollResultsContainer.innerHTML = '<div class="no-results">No Results Found</div>';
+      return;
+    }
+    
+    // Create HTML for each roll number group
+    sortedRolls.forEach(roll => {
+      const results = resultsByRoll[roll];
+      const firstResult = results[0]; // Get student info from first result
+      
+      const rollGroup = document.createElement('div');
+      rollGroup.className = 'roll-group';
+      
+      // Roll header with student info
+      const rollHeader = document.createElement('div');
+      rollHeader.className = 'roll-header';
+      rollHeader.innerHTML = `Roll Number: ${roll}`;
+      
+      const rollContent = document.createElement('div');
+      rollContent.className = 'roll-content';
+      
+      // Student information
+      const studentInfo = document.createElement('div');
+      studentInfo.className = 'roll-student-info';
+      studentInfo.innerHTML = `
+        <p><strong>Student:</strong> ${firstResult.name}</p>
+        <p><strong>Father:</strong> ${firstResult.father}</p>
+      `;
+      
+      // Results table
+      let resultsHTML = `
+        <table class="roll-results-table">
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Namaz</th>
+              <th>Kalma</th>
+              <th>Nazra</th>
+              <th>Total</th>
+              <th>Attendance</th>
+              <th>Position</th>
+              <th>Fine</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      
+      results.forEach(r => {
+        const obt = (+r.namazObt||0) + (+r.kalmaObt||0) + (+r.quranObt||0);
+        const total = (+r.namazTotal||0) + (+r.kalmaTotal||0) + (+r.quranTotal||0);
+        
+        let positionClass = "";
+        if(r.position === "1st") positionClass = "position-1st";
+        else if(r.position === "2nd") positionClass = "position-2nd";
+        else if(r.position === "3rd") positionClass = "position-3rd";
+        else if(r.position === "Pass") positionClass = "position-pass";
+        
+        const fineStatus = r.finePaid ? 
+          `<span class="fine-paid">Paid</span>` : 
+          `<span class="fine-pending">Pending</span>`;
+        
+        resultsHTML += `
+          <tr>
+            <td>${r.month}</td>
+            <td>${r.namazObt}/${r.namazTotal}</td>
+            <td>${r.kalmaObt}/${r.kalmaTotal}</td>
+            <td>${r.quranObt}/${r.quranTotal}</td>
+            <td>${obt}/${total}</td>
+            <td>${r.presentDays}/${r.totalWorkingDays} (${r.attendancePercentage}%)</td>
+            <td class="${positionClass}">${r.position || "-"}</td>
+            <td><span class="currency">Rs.</span> ${r.fine||0}</td>
+            <td>${fineStatus}</td>
+            <td>
+              <button class="btn-info" onclick="editResult('${r.key}')">✏️ Edit</button>
+              <button class="btn-pay" onclick="payFine('${r.key}')">💰 Pay</button>
+              <button class="btn-danger" onclick="deleteResult('${r.key}')">🗑 Delete</button>
+            </td>
+          </tr>
+        `;
+      });
+      
+      resultsHTML += `</tbody></table>`;
+      
+      rollContent.appendChild(studentInfo);
+      rollContent.innerHTML += resultsHTML;
+      
+      rollGroup.appendChild(rollHeader);
+      rollGroup.appendChild(rollContent);
+      
+      rollResultsContainer.appendChild(rollGroup);
+    });
   });
 };
 
