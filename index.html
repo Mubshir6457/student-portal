@@ -368,184 +368,754 @@ tbody tr:nth-child(even) {
   background: #f8f9fa;
 }
 
-/* VIP RESULT CARD - UPDATED WITH VIP FONT */
-.result-display-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f0fff4 100%);
-  border-radius: 20px;
-  padding: 40px;
-  margin: 30px 0;
-  box-shadow: 0 10px 40px rgba(46, 125, 50, 0.15);
-  border: 3px solid var(--primary);
+/* ULTRA BEAUTIFUL VIP RESULT CARD */
+.vip-result-display {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fff8 50%, #f0fff0 100%);
+  border-radius: 28px;
+  padding: 50px;
+  margin: 40px 0;
+  box-shadow: 
+    0 25px 60px rgba(46, 125, 50, 0.15),
+    0 0 0 1px rgba(46, 125, 50, 0.05),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  border: 4px solid transparent;
+  background-clip: padding-box;
   position: relative;
   overflow: hidden;
-  animation: slideIn 0.6s ease;
+  animation: slideUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes slideUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(60px) scale(0.95); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
 }
 
-.result-display-card::before {
+.vip-result-display::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: linear-gradient(90deg, 
+    var(--primary), 
+    #4caf50, 
+    var(--accent), 
+    #ff9800,
+    var(--primary));
+  background-size: 300% 100%;
+  animation: gradientFlow 4s linear infinite;
+  z-index: 2;
+}
+
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+.vip-result-display::after {
+  content: '🏆';
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  font-size: 8rem;
+  opacity: 0.06;
+  z-index: 1;
+  animation: trophyFloat 6s ease-in-out infinite;
+}
+
+@keyframes trophyFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+/* Certificate-style corner decorations */
+.corner-decoration {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.corner-tl {
+  top: 20px;
+  left: 20px;
+  border-top: 3px solid var(--primary);
+  border-left: 3px solid var(--primary);
+  border-top-left-radius: 15px;
+}
+
+.corner-tr {
+  top: 20px;
+  right: 20px;
+  border-top: 3px solid var(--accent);
+  border-right: 3px solid var(--accent);
+  border-top-right-radius: 15px;
+}
+
+.corner-bl {
+  bottom: 20px;
+  left: 20px;
+  border-bottom: 3px solid #4caf50;
+  border-left: 3px solid #4caf50;
+  border-bottom-left-radius: 15px;
+}
+
+.corner-br {
+  bottom: 20px;
+  right: 20px;
+  border-bottom: 3px solid #2e7d32;
+  border-right: 3px solid #2e7d32;
+  border-bottom-right-radius: 15px;
+}
+
+/* Enhanced Header */
+.vip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 45px;
+  padding-bottom: 30px;
+  border-bottom: 3px solid #e8f5e9;
+  position: relative;
+  z-index: 3;
+}
+
+.vip-student-info h2 {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 3rem;
+  margin-bottom: 15px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  text-shadow: 3px 3px 6px rgba(0,0,0,0.05);
+  font-family: 'Montserrat', sans-serif;
+  position: relative;
+  display: inline-block;
+}
+
+.vip-student-info h2::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), transparent);
+  border-radius: 2px;
+}
+
+.vip-student-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+.vip-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.2rem;
+  color: var(--text);
+  font-weight: 600;
+  padding: 8px 18px;
+  background: rgba(76, 175, 80, 0.08);
+  border-radius: 50px;
+  border: 2px solid rgba(76, 175, 80, 0.15);
+  backdrop-filter: blur(5px);
+}
+
+.vip-meta-item span {
+  font-size: 1.4rem;
+  opacity: 0.9;
+}
+
+/* Enhanced Position Badge */
+.vip-position-badge {
+  background: linear-gradient(135deg, 
+    rgba(255, 215, 0, 1), 
+    rgba(255, 193, 7, 1),
+    rgba(255, 152, 0, 1));
+  color: #8B4513;
+  padding: 18px 35px;
+  border-radius: 50px;
+  font-size: 2rem;
+  font-weight: 900;
+  box-shadow: 
+    0 12px 30px rgba(255, 215, 0, 0.25),
+    0 0 0 4px rgba(255, 255, 255, 0.5),
+    inset 0 0 20px rgba(255, 255, 255, 0.3);
+  font-family: 'Playfair Display', serif;
+  border: 3px solid white;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  animation: badgeGlow 2s infinite alternate;
+  position: relative;
+  overflow: hidden;
+  z-index: 2;
+}
+
+@keyframes badgeGlow {
+  from {
+    box-shadow: 
+      0 12px 30px rgba(255, 215, 0, 0.25),
+      0 0 0 4px rgba(255, 255, 255, 0.5);
+  }
+  to {
+    box-shadow: 
+      0 20px 45px rgba(255, 215, 0, 0.4),
+      0 0 0 4px rgba(255, 255, 255, 0.8),
+      0 0 40px rgba(255, 215, 0, 0.3);
+  }
+}
+
+.vip-position-badge::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transform: rotate(45deg);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+/* Enhanced Results Grid */
+.vip-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  margin: 45px 0;
+  position: relative;
+  z-index: 2;
+}
+
+.vip-result-item {
+  background: linear-gradient(135deg, #ffffff, #f8faf8);
+  padding: 35px 25px;
+  border-radius: 22px;
+  text-align: center;
+  box-shadow: 
+    0 15px 35px rgba(46, 125, 50, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  border: 2px solid #e8f5e9;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+}
+
+.vip-result-item::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 6px;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
+  background: linear-gradient(90deg, var(--primary), var(--primary-light));
+  border-radius: 3px 3px 0 0;
 }
 
-.result-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #e8f5e9;
+.vip-result-item:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 
+    0 25px 50px rgba(46, 125, 50, 0.15),
+    0 0 0 2px var(--primary-light);
+  border-color: var(--primary-light);
 }
 
-.student-info h3 {
-  color: var(--primary);
-  font-size: 2.5rem;
-  margin-bottom: 10px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+.vip-result-item h4 {
+  color: var(--primary-dark);
+  font-size: 1.4rem;
+  margin-bottom: 25px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  position: relative;
+  display: inline-block;
+}
+
+.vip-result-item h4::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 2px;
+}
+
+.vip-result-value {
+  font-size: 3.8rem;
+  font-weight: 900;
+  margin: 20px 0;
   font-family: 'Montserrat', sans-serif;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 3px 3px 6px rgba(0,0,0,0.05);
+  position: relative;
 }
 
-.student-info p {
+.vip-result-progress {
+  height: 10px;
+  background: rgba(232, 245, 233, 0.5);
+  border-radius: 5px;
+  margin: 20px 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.vip-result-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--primary-light));
+  border-radius: 5px;
+  transition: width 1.5s ease-out;
+  position: relative;
+}
+
+.vip-result-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: progressShine 2s infinite;
+}
+
+@keyframes progressShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.vip-percentage {
   color: var(--text-light);
   font-size: 1.2rem;
-  font-weight: 500;
+  font-weight: 600;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.result-badge {
-  background: linear-gradient(135deg, var(--accent), #ff5722);
-  color: white;
-  padding: 12px 24px;
-  border-radius: 50px;
-  font-size: 1.3rem;
-  font-weight: 700;
-  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+/* Enhanced Stats Cards */
+.vip-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 25px;
+  margin: 45px 0;
+  position: relative;
+  z-index: 2;
+}
+
+.vip-stat-card {
+  background: linear-gradient(135deg, #ffffff, #f8faf8);
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 
+    0 12px 30px rgba(46, 125, 50, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  border: 2px solid #e8f5e9;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.vip-stat-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 
+    0 20px 40px rgba(46, 125, 50, 0.12),
+    0 0 0 2px var(--primary-light);
+}
+
+.vip-stat-icon {
+  font-size: 3.2rem;
+  margin-bottom: 25px;
+  display: block;
+  filter: drop-shadow(3px 3px 6px rgba(0,0,0,0.1));
+}
+
+.vip-stat-value {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--primary);
   font-family: 'Montserrat', sans-serif;
+  margin: 15px 0;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
+}
+
+.vip-stat-label {
+  color: var(--text-light);
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Enhanced Remarks Section */
+.vip-remarks-section {
+  background: linear-gradient(135deg, 
+    rgba(232, 245, 233, 0.9),
+    rgba(200, 230, 201, 0.9));
+  border-radius: 22px;
+  padding: 45px;
+  margin-top: 55px;
+  border-left: 10px solid var(--primary);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 15px 35px rgba(46, 125, 50, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+}
+
+.vip-remarks-section::before {
+  content: '💬';
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  font-size: 6rem;
+  opacity: 0.08;
+  animation: remarkFloat 8s ease-in-out infinite;
+}
+
+@keyframes remarkFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(3deg); }
+}
+
+.vip-remarks-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 30px;
+}
+
+.vip-remarks-header h3 {
+  color: var(--primary-dark);
+  font-size: 2.2rem;
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
+  position: relative;
+}
+
+.vip-remarks-header h3::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: var(--primary);
+  border-radius: 2px;
+}
+
+.vip-remarks-content {
+  font-size: 1.8rem;
+  line-height: 1.9;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 35px;
+  border-radius: 18px;
+  border: 1px solid rgba(46, 125, 50, 0.1);
+  box-shadow: 
+    0 8px 25px rgba(46, 125, 50, 0.05),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  font-weight: 500;
+  font-family: 'Playfair Display', serif;
+  position: relative;
+  z-index: 1;
+  font-style: italic;
+  text-align: center;
+}
+
+/* Gold/Silver/Bronze specific styles */
+.gold-card .vip-result-item {
+  border-color: #FFD700;
+}
+
+.gold-card .vip-result-item::before {
+  background: linear-gradient(90deg, #FFD700, #FFC107);
+}
+
+.silver-card .vip-result-item {
+  border-color: #C0C0C0;
+}
+
+.silver-card .vip-result-item::before {
+  background: linear-gradient(90deg, #C0C0C0, #B0B0B0);
+}
+
+.bronze-card .vip-result-item {
+  border-color: #CD7F32;
+}
+
+.bronze-card .vip-result-item::before {
+  background: linear-gradient(90deg, #CD7F32, #A0522D);
 }
 
 /* VIP Position Styles */
 .position-1st {
-  background: linear-gradient(135deg, #FFD700, #FFC107);
+  background: linear-gradient(135deg, #FFD700, #FFC107, #FF9800);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 900;
+  font-size: 4rem;
+  font-family: 'Playfair Display', serif;
+  text-shadow: 
+    0 0 30px rgba(255, 215, 0, 0.5),
+    0 0 60px rgba(255, 215, 0, 0.3);
+  animation: goldGlow 3s infinite alternate;
+}
+
+@keyframes goldGlow {
+  from { 
+    text-shadow: 
+      0 0 20px rgba(255, 215, 0, 0.6),
+      0 0 40px rgba(255, 215, 0, 0.4),
+      0 0 60px rgba(255, 215, 0, 0.2);
+  }
+  to { 
+    text-shadow: 
+      0 0 30px rgba(255, 215, 0, 0.8),
+      0 0 60px rgba(255, 215, 0, 0.6),
+      0 0 90px rgba(255, 215, 0, 0.4),
+      0 0 120px rgba(255, 215, 0, 0.2);
+  }
+}
+
+.position-2nd {
+  background: linear-gradient(135deg, #C0C0C0, #B0B0B0, #A0A0A0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 900;
+  font-size: 3.5rem;
+  font-family: 'Playfair Display', serif;
+  text-shadow: 
+    0 0 25px rgba(192, 192, 192, 0.5),
+    0 0 50px rgba(192, 192, 192, 0.3);
+  animation: silverGlow 3s infinite alternate;
+}
+
+@keyframes silverGlow {
+  from { 
+    text-shadow: 
+      0 0 15px rgba(192, 192, 192, 0.6),
+      0 0 30px rgba(192, 192, 192, 0.4),
+      0 0 45px rgba(192, 192, 192, 0.2);
+  }
+  to { 
+    text-shadow: 
+      0 0 25px rgba(192, 192, 192, 0.8),
+      0 0 50px rgba(192, 192, 192, 0.6),
+      0 0 75px rgba(192, 192, 192, 0.4),
+      0 0 100px rgba(192, 192, 192, 0.2);
+  }
+}
+
+.position-3rd {
+  background: linear-gradient(135deg, #CD7F32, #A0522D, #8B4513);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   font-weight: 900;
   font-size: 3.2rem;
   font-family: 'Playfair Display', serif;
-  text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
-  animation: glow1 2s infinite alternate;
+  text-shadow: 
+    0 0 20px rgba(205, 127, 50, 0.5),
+    0 0 40px rgba(205, 127, 50, 0.3);
+  animation: bronzeGlow 3s infinite alternate;
 }
 
-@keyframes glow1 {
-  from { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.3); }
-  to { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.6), 0 0 60px rgba(255, 215, 0, 0.4); }
-}
-
-.position-2nd {
-  background: linear-gradient(135deg, #C0C0C0, #B0B0B0);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  font-weight: 900;
-  font-size: 2.8rem;
-  font-family: 'Playfair Display', serif;
-  text-shadow: 0 0 25px rgba(192, 192, 192, 0.5);
-  animation: glow2 2s infinite alternate;
-}
-
-@keyframes glow2 {
-  from { text-shadow: 0 0 8px rgba(192, 192, 192, 0.5), 0 0 16px rgba(192, 192, 192, 0.3); }
-  to { text-shadow: 0 0 16px rgba(192, 192, 192, 0.8), 0 0 32px rgba(192, 192, 192, 0.6), 0 0 48px rgba(192, 192, 192, 0.4); }
-}
-
-.position-3rd {
-  background: linear-gradient(135deg, #CD7F32, #A0522D);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  font-weight: 900;
-  font-size: 2.6rem;
-  font-family: 'Playfair Display', serif;
-  text-shadow: 0 0 20px rgba(205, 127, 50, 0.5);
-  animation: glow3 2s infinite alternate;
-}
-
-@keyframes glow3 {
-  from { text-shadow: 0 0 6px rgba(205, 127, 50, 0.5), 0 0 12px rgba(205, 127, 50, 0.3); }
-  to { text-shadow: 0 0 12px rgba(205, 127, 50, 0.8), 0 0 24px rgba(205, 127, 50, 0.6), 0 0 36px rgba(205, 127, 50, 0.4); }
+@keyframes bronzeGlow {
+  from { 
+    text-shadow: 
+      0 0 12px rgba(205, 127, 50, 0.6),
+      0 0 24px rgba(205, 127, 50, 0.4),
+      0 0 36px rgba(205, 127, 50, 0.2);
+  }
+  to { 
+    text-shadow: 
+      0 0 20px rgba(205, 127, 50, 0.8),
+      0 0 40px rgba(205, 127, 50, 0.6),
+      0 0 60px rgba(205, 127, 50, 0.4),
+      0 0 80px rgba(205, 127, 50, 0.2);
+  }
 }
 
 .position-pass {
   color: var(--success);
-  font-weight: 700;
-  font-size: 2.4rem;
+  font-weight: 900;
+  font-size: 3rem;
   font-family: 'Playfair Display', serif;
+  text-shadow: 
+    2px 2px 4px rgba(0,0,0,0.1),
+    0 0 20px rgba(76, 175, 80, 0.3);
+  animation: passPulse 2s infinite;
+}
+
+@keyframes passPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.05); }
 }
 
 .absent { 
   color: var(--danger);
-  font-weight: 700;
-  font-size: 2.4rem;
+  font-weight: 900;
+  font-size: 3rem;
   font-family: 'Montserrat', sans-serif;
+  text-shadow: 
+    2px 2px 4px rgba(0,0,0,0.1),
+    0 0 20px rgba(244, 67, 54, 0.3);
   animation: pulse 2s infinite;
 }
 
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.7; }
-  100% { opacity: 1; }
+/* Responsive adjustments for VIP card */
+@media (max-width: 1024px) {
+  .vip-student-info h2 {
+    font-size: 2.5rem;
+  }
+  
+  .vip-position-badge {
+    font-size: 1.8rem;
+    padding: 15px 25px;
+  }
+  
+  .vip-result-value {
+    font-size: 3.2rem;
+  }
+  
+  .position-1st {
+    font-size: 3.2rem;
+  }
+  
+  .position-2nd {
+    font-size: 2.8rem;
+  }
+  
+  .position-3rd {
+    font-size: 2.5rem;
+  }
 }
 
-/* VIP Results Grid */
-.results-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 25px;
-  margin: 30px 0;
+@media (max-width: 768px) {
+  .vip-result-display {
+    padding: 35px 25px;
+    margin: 30px 0;
+  }
+  
+  .vip-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 25px;
+  }
+  
+  .vip-student-info h2 {
+    font-size: 2.2rem;
+  }
+  
+  .vip-position-badge {
+    font-size: 1.6rem;
+    padding: 12px 20px;
+  }
+  
+  .vip-results-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .vip-result-value {
+    font-size: 2.8rem;
+  }
+  
+  .vip-remarks-content {
+    font-size: 1.5rem;
+    padding: 25px;
+  }
+  
+  .vip-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .position-1st, .position-2nd, .position-3rd {
+    font-size: 2.5rem;
+  }
 }
 
-.result-item {
-  background: white;
-  padding: 25px;
-  border-radius: 16px;
-  text-align: center;
-  box-shadow: 0 4px 15px rgba(46, 125, 50, 0.08);
-  border: 2px solid var(--border);
-  transition: all 0.3s ease;
-}
-
-.result-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(46, 125, 50, 0.12);
-}
-
-.result-item h4 {
-  color: var(--primary);
-  font-size: 1.1rem;
-  margin-bottom: 15px;
-  font-weight: 600;
-}
-
-.result-value {
-  font-size: 2.8rem;
-  font-weight: 800;
-  color: var(--primary);
-  margin: 10px 0;
-  font-family: 'Montserrat', sans-serif;
-}
-
-.result-subtitle {
-  color: var(--text-light);
-  font-size: 0.9rem;
-  margin-top: 5px;
+@media (max-width: 480px) {
+  .vip-results-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .vip-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .vip-result-display {
+    padding: 30px 20px;
+  }
+  
+  .vip-student-info h2 {
+    font-size: 1.8rem;
+  }
+  
+  .vip-result-value {
+    font-size: 2.5rem;
+  }
+  
+  .vip-position-badge {
+    font-size: 1.4rem;
+    padding: 10px 18px;
+  }
+  
+  .vip-remarks-content {
+    font-size: 1.3rem;
+    padding: 20px;
+  }
+  
+  .vip-meta-item {
+    font-size: 1rem;
+    padding: 6px 12px;
+  }
+  
+  .corner-decoration {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 /* Admin Remarks Section */
@@ -1163,6 +1733,7 @@ tbody tr:nth-child(even) {
     </div>
   </div>
 </section>
+
 
 <!-- 📝 ATTENDANCE -->
 <section id="attendanceSection">
@@ -2485,7 +3056,7 @@ window.deleteAllResults = async () => {
   }
 };
 
-// Check Result (Public) - WITH VIP FONT DISPLAY
+// Check Result (Public) - WITH ULTRA BEAUTIFUL VIP DISPLAY
 window.checkResult = async () => {
   const roll = document.getElementById('searchRoll').value.trim();
   if(!roll) {
@@ -2506,19 +3077,32 @@ window.checkResult = async () => {
       if(studentSnap.exists()){
         const student = studentSnap.val();
         document.getElementById('resultOutput').innerHTML = `
-          <div class="result-display-card">
-            <div class="result-header">
-              <div class="student-info">
-                <h3 class="vip-font-bold">${student.name}</h3>
-                <p>Roll Number: ${student.roll} | Class: ${student.category}</p>
+          <div class="vip-result-display">
+            <div class="corner-decoration corner-tl"></div>
+            <div class="corner-decoration corner-tr"></div>
+            <div class="corner-decoration corner-bl"></div>
+            <div class="corner-decoration corner-br"></div>
+            
+            <div class="vip-header">
+              <div class="vip-student-info">
+                <h2 class="vip-font-bold">${student.name}</h2>
+                <div class="vip-student-meta">
+                  <div class="vip-meta-item">
+                    <span>🎫</span> Roll: ${student.roll}
+                  </div>
+                  <div class="vip-meta-item">
+                    <span>📚</span> Class: ${student.category}
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="remarks-section">
-              <div class="remarks-header">
+            
+            <div class="vip-remarks-section">
+              <div class="vip-remarks-header">
                 <span>📋</span>
                 <h3>Result Status</h3>
               </div>
-              <div class="remarks-content vip-font">
+              <div class="vip-remarks-content vip-font">
                 No result available yet. Please check back later.
               </div>
             </div>
@@ -2552,22 +3136,32 @@ window.checkResult = async () => {
       const result = latestResult;
       const obt = (+result.namazObt) + (+result.kalmaObt) + (+result.quranObt);
       const total = (+result.namazTotal) + (+result.kalmaTotal) + (+result.quranTotal);
+      const percentage = total > 0 ? Math.round((obt / total) * 100) : 0;
+      
+      // Calculate percentages for each subject
+      const namazPercentage = result.namazTotal > 0 ? Math.round((result.namazObt / result.namazTotal) * 100) : 0;
+      const kalmaPercentage = result.kalmaTotal > 0 ? Math.round((result.kalmaObt / result.kalmaTotal) * 100) : 0;
+      const quranPercentage = result.quranTotal > 0 ? Math.round((result.quranObt / result.quranTotal) * 100) : 0;
       
       let positionClass = "";
       let positionDisplay = result.position || "Not assigned";
       let positionIcon = "";
+      let cardClass = "";
       
       if(result.position === "1st") {
-        positionClass = "position-1st vip-font";
+        positionClass = "position-1st";
         positionIcon = "🥇";
+        cardClass = "gold-card";
       } else if(result.position === "2nd") {
-        positionClass = "position-2nd vip-font";
+        positionClass = "position-2nd";
         positionIcon = "🥈";
+        cardClass = "silver-card";
       } else if(result.position === "3rd") {
-        positionClass = "position-3rd vip-font";
+        positionClass = "position-3rd";
         positionIcon = "🥉";
+        cardClass = "bronze-card";
       } else if(result.position === "Pass") {
-        positionClass = "position-pass vip-font";
+        positionClass = "position-pass";
         positionIcon = "✅";
       }
       
@@ -2581,68 +3175,97 @@ window.checkResult = async () => {
         adminRemarks = remarksSnap.val().remarks || adminRemarks;
       }
       
-      // Create VIP result display
+      // Create ULTRA BEAUTIFUL VIP result display
       document.getElementById('resultOutput').innerHTML = `
-        <div class="result-display-card">
-          <div class="result-header">
-            <div class="student-info">
-              <h3 class="vip-font-bold">${result.name}</h3>
-              <p>Roll Number: ${result.roll} | Class: ${result.class} | Month: ${result.month}</p>
+        <div class="vip-result-display ${cardClass}">
+          <div class="corner-decoration corner-tl"></div>
+          <div class="corner-decoration corner-tr"></div>
+          <div class="corner-decoration corner-bl"></div>
+          <div class="corner-decoration corner-br"></div>
+          
+          <div class="vip-header">
+            <div class="vip-student-info">
+              <h2 class="vip-font-bold">${result.name}</h2>
+              <div class="vip-student-meta">
+                <div class="vip-meta-item">
+                  <span>🎫</span> Roll: ${result.roll}
+                </div>
+                <div class="vip-meta-item">
+                  <span>📚</span> Class: ${result.class}
+                </div>
+                <div class="vip-meta-item">
+                  <span>📅</span> Month: ${result.month}
+                </div>
+              </div>
             </div>
-            <div class="result-badge vip-font-bold">
+            <div class="vip-position-badge">
               ${positionIcon} ${positionDisplay}
             </div>
           </div>
           
-          <div class="results-grid">
-            <div class="result-item">
+          <div class="vip-results-grid">
+            <div class="vip-result-item">
               <h4>Namaz</h4>
-              <div class="result-value vip-font-bold">${result.namazObt}/${result.namazTotal}</div>
-              <div class="result-subtitle">Marks Obtained</div>
+              <div class="vip-result-value">${result.namazObt}/${result.namazTotal}</div>
+              <div class="vip-result-progress">
+                <div class="vip-result-progress-fill" style="width: ${namazPercentage}%"></div>
+              </div>
+              <div class="vip-percentage">${namazPercentage}%</div>
             </div>
-            <div class="result-item">
+            <div class="vip-result-item">
               <h4>Kalma</h4>
-              <div class="result-value vip-font-bold">${result.kalmaObt}/${result.kalmaTotal}</div>
-              <div class="result-subtitle">Marks Obtained</div>
+              <div class="vip-result-value">${result.kalmaObt}/${result.kalmaTotal}</div>
+              <div class="vip-result-progress">
+                <div class="vip-result-progress-fill" style="width: ${kalmaPercentage}%"></div>
+              </div>
+              <div class="vip-percentage">${kalmaPercentage}%</div>
             </div>
-            <div class="result-item">
+            <div class="vip-result-item">
               <h4>Nazra</h4>
-              <div class="result-value vip-font-bold">${result.quranObt}/${result.quranTotal}</div>
-              <div class="result-subtitle">Marks Obtained</div>
+              <div class="vip-result-value">${result.quranObt}/${result.quranTotal}</div>
+              <div class="vip-result-progress">
+                <div class="vip-result-progress-fill" style="width: ${quranPercentage}%"></div>
+              </div>
+              <div class="vip-percentage">${quranPercentage}%</div>
             </div>
-            <div class="result-item">
+            <div class="vip-result-item">
               <h4>Total</h4>
-              <div class="result-value vip-font-bold">${obt}/${total}</div>
-              <div class="result-subtitle">Aggregate Marks</div>
+              <div class="vip-result-value">${obt}/${total}</div>
+              <div class="vip-result-progress">
+                <div class="vip-result-progress-fill" style="width: ${percentage}%"></div>
+              </div>
+              <div class="vip-percentage">${percentage}% Overall</div>
             </div>
           </div>
           
-          <div class="stats-grid">
-            <div class="stat-card">
-              <span class="stat-icon">🏆</span>
-              <div class="stat-label">Position</div>
-              <div class="${positionClass}" style="font-size: 2.2rem;">${positionIcon} ${positionDisplay}</div>
+          <div class="vip-stats-grid">
+            <div class="vip-stat-card">
+              <span class="vip-stat-icon">🏆</span>
+              <div class="${positionClass}" style="font-size: 2.5rem; margin: 10px 0;">${positionIcon} ${positionDisplay}</div>
+              <div class="vip-stat-label">Position</div>
             </div>
-            <div class="stat-card">
-              <span class="stat-icon">📅</span>
-              <div class="stat-label">Attendance</div>
-              <div class="stat-value vip-font-bold">${result.attendancePercentage}%</div>
-              <div class="stat-label">${result.presentDays}/${result.totalWorkingDays} days</div>
+            <div class="vip-stat-card">
+              <span class="vip-stat-icon">📅</span>
+              <div class="vip-stat-value">${result.attendancePercentage}%</div>
+              <div class="vip-stat-label">Attendance</div>
+              <div style="color: var(--text-light); font-size: 0.9rem; margin-top: 5px;">${result.presentDays}/${result.totalWorkingDays} days</div>
             </div>
-            <div class="stat-card">
-              <span class="stat-icon">💰</span>
-              <div class="stat-label">Fine Amount</div>
-              <div class="stat-value vip-font-bold">₹ ${result.fine || 0}</div>
-              <div class="stat-label">${result.finePaid ? '✅ Paid' : '❌ Pending'}</div>
+            <div class="vip-stat-card">
+              <span class="vip-stat-icon">💰</span>
+              <div class="vip-stat-value">₹ ${result.fine || 0}</div>
+              <div class="vip-stat-label">Fine Amount</div>
+              <div style="color: ${result.finePaid ? 'var(--success)' : 'var(--danger)'}; font-weight: bold; margin-top: 5px;">
+                ${result.finePaid ? '✅ Paid' : '❌ Pending'}
+              </div>
             </div>
           </div>
           
-          <div class="remarks-section ${result.position === '1st' || result.position === '2nd' || result.position === '3rd' ? 'highlight' : ''}">
-            <div class="remarks-header">
+          <div class="vip-remarks-section">
+            <div class="vip-remarks-header">
               <span>💬</span>
               <h3>Teacher's Remarks</h3>
             </div>
-            <div class="remarks-content vip-font">
+            <div class="vip-remarks-content vip-font">
               ${adminRemarks}
             </div>
           </div>
@@ -2661,19 +3284,32 @@ window.checkResult = async () => {
       if(studentSnap.exists()){
         const student = studentSnap.val();
         document.getElementById('resultOutput').innerHTML = `
-          <div class="result-display-card">
-            <div class="result-header">
-              <div class="student-info">
-                <h3 class="vip-font-bold">${student.name}</h3>
-                <p>Roll Number: ${student.roll} | Class: ${student.category}</p>
+          <div class="vip-result-display">
+            <div class="corner-decoration corner-tl"></div>
+            <div class="corner-decoration corner-tr"></div>
+            <div class="corner-decoration corner-bl"></div>
+            <div class="corner-decoration corner-br"></div>
+            
+            <div class="vip-header">
+              <div class="vip-student-info">
+                <h2 class="vip-font-bold">${student.name}</h2>
+                <div class="vip-student-meta">
+                  <div class="vip-meta-item">
+                    <span>🎫</span> Roll: ${student.roll}
+                  </div>
+                  <div class="vip-meta-item">
+                    <span>📚</span> Class: ${student.category}
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="remarks-section">
-              <div class="remarks-header">
+            
+            <div class="vip-remarks-section">
+              <div class="vip-remarks-header">
                 <span>📋</span>
                 <h3>Result Status</h3>
               </div>
-              <div class="remarks-content vip-font">
+              <div class="vip-remarks-content vip-font">
                 No result available for this student yet. Please check back after the monthly examination.
               </div>
             </div>
